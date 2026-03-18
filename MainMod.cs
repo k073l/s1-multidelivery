@@ -1,8 +1,11 @@
 using System.Collections;
 using MelonLoader;
 using DeliveryProject.Helpers;
+using DeliveryProject.Network;
 using DeliveryProject.Persistence;
+using DeliveryProject.Pool;
 using ScheduleOne.Vehicles.Modification;
+using Steamworks;
 using UnityEngine;
 #if MONO
 using FishNet;
@@ -39,28 +42,51 @@ public static class BuildInfo
 public class DeliveryProject : MelonMod
 {
     internal const string RequestedVehicleCode = "veeper";
-    private static MelonLogger.Instance Logger;
-
+    private DeliveryNetworkManager _networkManager;
+ 
     public override void OnInitializeMelon()
     {
-        Logger = LoggerInstance;
-        Logger.Msg("DeliveryProject initialized");
+        Melon<DeliveryProject>.Logger.Msg("DeliveryProject initialized");
+        MelonCoroutines.Start(InitializeNetworkManager());
     }
 
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {
-        Logger.Debug($"Scene loaded: {sceneName}");
-        if (sceneName == "Main")
+        if (sceneName != "Menu") return;
+        // Cleanup
+        PoolManager.Instance.Pool.Clear();
+        PoolManager.Instance.Allocations.Clear();
+        PoolManager.Instance.BaseVehicleAllocationsForShop.Clear();
+    }
+
+    private IEnumerator InitializeNetworkManager()
+    {
+        yield return new WaitUntil(SteamAPI.Init);
+        yield return null;
+        
+        // Initialize network manager
+        _networkManager = new DeliveryNetworkManager();
+        if (_networkManager.Initialize())
         {
-            Logger.Debug("Main scene loaded, waiting for player");
-            MelonCoroutines.Start(Utils.WaitForPlayer(DoStuff()));
+            Melon<DeliveryProject>.Logger.Msg("Network manager initialized");
+                
+            // Wire up to the pool manager
+            PoolManager.Instance.InitializeNetworking(_networkManager);
+        }
+        else
+        {
+            Melon<DeliveryProject>.Logger.Warning("Network manager initialization failed - running in offline mode");
         }
     }
 
-    private IEnumerator DoStuff()
+    public override void OnUpdate()
     {
-        Logger.Msg("Player ready, doing stuff...");
-        yield return new WaitForSeconds(2f);
-        Logger.Msg("Did some stuff!");
+        _networkManager?.Update();
+    }
+ 
+    public override void OnDeinitializeMelon()
+    {
+        _networkManager?.Dispose();
+        Melon<DeliveryProject>.Logger.Msg("DeliveryProject shut down");
     }
 }

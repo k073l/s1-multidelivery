@@ -1,4 +1,5 @@
-﻿using MelonLoader;
+﻿using DeliveryProject.Network;
+using MelonLoader;
 using ScheduleOne.Delivery;
 using ScheduleOne.UI.Shop;
 
@@ -8,24 +9,24 @@ public class PoolManager
 {
     public static PoolManager Instance { get; } = new();
 
-    private HashSet<DeliveryVehicle> Pool { get; } = [];
+    public HashSet<DeliveryVehicle> Pool { get; } = [];
     internal Dictionary<string, DeliveryVehicle> Allocations { get; } = new();
-
     internal Dictionary<string, bool> BaseVehicleAllocationsForShop { get; } = new();
 
-    public void AddToPool(DeliveryVehicle deliveryVehicle) => Pool.Add(deliveryVehicle);
+    public void AddToPool(DeliveryVehicle deliveryVehicle)
+    {
+        Pool.Add(deliveryVehicle);
+
+        // Notify network (if available)
+        this.NotifyVehicleAdded(deliveryVehicle);
+    }
 
     public DeliveryVehicle? GetFirstFree()
     {
-        foreach (var dv in Pool)
-        {
-            MelonDebug.Msg(
-                $"Vehicle in pool - ActiveDelivery: {(dv.ActiveDelivery == null ? "null" : dv.ActiveDelivery.DeliveryID + " (Status: " + dv.ActiveDelivery.Status + ")")}");
-        }
+        var free = Pool.FirstOrDefault(dv => dv.ActiveDelivery == null && !Allocations.ContainsValue(dv));
 
-        var free = Pool.FirstOrDefault(dv => dv.ActiveDelivery == null);
-
-        MelonDebug.Msg($"Pool lookup result: {(free == null ? "null" : "not null")}");
+        if (UnityEngine.Time.frameCount % 30 == 0)
+            MelonDebug.Msg($"Pool lookup: {(free == null ? "null" : "not null")}");
 
         return free;
     }
@@ -33,6 +34,7 @@ public class PoolManager
     public DeliveryVehicle GetOrAllocateFirstFree(string deliveryId)
     {
         MelonDebug.Msg($"GetOrAllocateFirstFree called for: {deliveryId}");
+
         if (Allocations.TryGetValue(deliveryId, out var allocated))
         {
             MelonDebug.Msg($"Already allocated, returning existing");
@@ -54,12 +56,23 @@ public class PoolManager
 
         Allocations.Add(deliveryId, free);
         MelonDebug.Msg($"Allocated new vehicle for {deliveryId}");
+
+        // Notify network of allocation
+        this.NotifyAllocation(deliveryId, free, isAllocated: true);
+
         return free;
     }
 
     public void FreeAllocation(string deliveryId)
     {
         MelonDebug.Msg($"Free custom allocation: {deliveryId}");
-        Allocations.Remove(deliveryId);
+
+        if (Allocations.TryGetValue(deliveryId, out var deliveryVehicle))
+        {
+            Allocations.Remove(deliveryId);
+
+            // Notify network of deallocation
+            this.NotifyAllocation(deliveryId, deliveryVehicle, isAllocated: false);
+        }
     }
 }

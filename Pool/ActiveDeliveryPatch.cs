@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using DeliveryProject.Network;
+using HarmonyLib;
 using MelonLoader;
 using ScheduleOne.Delivery;
 using ScheduleOne.UI.Phone.Delivery;
@@ -46,10 +47,14 @@ internal static class ActiveDeliveryPatch
     {
         PoolManager.Instance.BaseVehicleAllocationsForShop.TryAdd(delivery.StoreName, false);
         MelonDebug.Msg($"Base allocation: {PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName]}");
+
         if (!PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName])
         {
             MelonDebug.Msg("Base vehicle allocating");
             PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName] = true;
+
+            // Notify network of base allocation change
+            PoolManager.Instance.NotifyBaseAllocation(delivery.StoreName, true);
             return;
         }
 

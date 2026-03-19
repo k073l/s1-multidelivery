@@ -42,7 +42,7 @@ internal static class DeliveryInstancePatches
                     PoolManager.Instance.BaseVehicleAllocationsForShop[__instance.StoreName] = false;
                     
                     // Notify network of base allocation freed
-                    PoolManager.Instance.NotifyBaseAllocation(__instance.StoreName, false);
+                    NetworkConvenienceMethods.NotifyBaseAllocation(__instance.StoreName, false);
                 }
                 else
                 {

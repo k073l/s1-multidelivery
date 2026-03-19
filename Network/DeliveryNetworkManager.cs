@@ -3,6 +3,7 @@ using MelonLoader;
 using SteamNetworkLib;
 using DeliveryProject.Pool;
 using DeliveryProject.Builders;
+using DeliveryProject.Persistence;
 using UnityEngine;
 
 #if MONO
@@ -39,7 +40,7 @@ public class DeliveryNetworkManager
 
     public DeliveryNetworkManager()
     {
-        _logger = new Logger("Network");
+        _logger = new Logger("Network", LogLevel.NetworkTrace);
     }
 
     public bool Initialize()
@@ -75,6 +76,7 @@ public class DeliveryNetworkManager
     private void RegisterMessageHandlers()
     {
         _client.RegisterMessageHandler<VehicleAddedMessage>(OnVehicleAdded);
+        _client.RegisterMessageHandler<VehicleCreatedMessage>(OnVehicleCreated);
         _client.RegisterMessageHandler<VehiclePoolSyncRequest>(OnPoolSyncRequest);
         _client.RegisterMessageHandler<VehiclePoolSyncResponse>(OnPoolSyncResponse);
         _client.RegisterMessageHandler<VehicleAllocationMessage>(OnVehicleAllocation);
@@ -103,14 +105,14 @@ public class DeliveryNetworkManager
 
     public async void BroadcastVehicleAdded(DeliveryVehicle vehicle)
     {
-        if (IsSingleplayer || !IsHost) return;
+        if (IsSingleplayer) return;
 
         var message = new VehicleAddedMessage
         {
             ObjectId = vehicle.Vehicle.ObjectId, // FishNet network ID
             VehicleGuid = vehicle.GUID, // Our DeliveryVehicle GUID
             VehicleName = vehicle.Vehicle.vehicleName,
-            VehicleCode = DeliveryProject.RequestedVehicleCode,
+            VehicleCode = vehicle.Vehicle.VehicleCode,
             VehicleColor = (int)vehicle.Vehicle.Color.displayedColor,
         };
 
@@ -118,17 +120,17 @@ public class DeliveryNetworkManager
         await _client.BroadcastMessageAsync(message);
     }
 
-    public async void BroadcastVehicleRemoved(DeliveryVehicle vehicle)
+    public async void BroadcastVehicleCreated(DeliveryVehicle vehicle)
     {
-        if (IsSingleplayer || !IsHost) return;
+        if (IsSingleplayer || IsHost) return;
 
-        var message = new VehicleRemovedMessage
+        var message = new VehicleCreatedMessage
         {
             ObjectId = vehicle.Vehicle.ObjectId,
             VehicleGuid = vehicle.GUID
         };
 
-        _logger.Msg($"Broadcasting vehicle removed: ObjectId={message.ObjectId}");
+        _logger.Msg($"Broadcasting vehicle created: ObjectId={message.ObjectId}");
         await _client.BroadcastMessageAsync(message);
     }
 
@@ -167,7 +169,7 @@ public class DeliveryNetworkManager
 
     private void OnVehicleAdded(VehicleAddedMessage message, CSteamID senderId)
     {
-        if (IsHost) return;
+        // if (IsHost) return;
 
         _logger.Msg($"Received VehicleAdded: ObjectId={message.ObjectId}, GUID={message.VehicleGuid}");
         MelonCoroutines.Start(ProcessMessage());
@@ -202,13 +204,46 @@ public class DeliveryNetworkManager
                                           .WithGuid(deliveryGuid)
                                           .Build();
 
-                PoolManager.Instance.AddToPool(deliveryVehicle);
+                PoolManager.Instance.AddToPool(deliveryVehicle, notify: false); // don't notify back
 
                 _logger.Msg($"Added vehicle to pool: ObjectId={message.ObjectId}, DeliveryGUID={message.VehicleGuid}");
             }
             catch (Exception ex)
             {
                 _logger.Error($"Failed to add vehicle: {ex}");
+            }
+        }
+    }
+
+    private void OnVehicleCreated(VehicleCreatedMessage message, CSteamID senderId)
+    {
+        if (!IsHost) return;
+        
+        _logger.Msg($"Received vehicle created message from {senderId}");
+        MelonCoroutines.Start(ProcessMessage());
+
+        IEnumerator ProcessMessage()
+        {
+            yield return ExponentialBackoff(
+                () => UnityEngine.SceneManagement.SceneManager.GetSceneByName("Main").isLoaded, 1f, 30f, 60f);
+            yield return ExponentialBackoff(() => FindLandVehicleByObjectId(message.ObjectId) != null, 1f, 30f, 60f);
+            try
+            {
+                // we technically could use GUID here, but we might as well
+                var landVehicle = FindLandVehicleByObjectId(message.ObjectId);
+
+                if (landVehicle == null)
+                {
+                    _logger.Error(
+                        $"LandVehicle with ObjectId {message.ObjectId} not found");
+                    yield break;
+                }
+                VehicleSave.Instance.AddVehicle(landVehicle);
+                _logger.Msg($"Added created vehicle to save data: ObjectId={message.ObjectId}, GUID={message.VehicleGuid}");
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"Failed to create vehicle: {e}");
             }
         }
     }
@@ -230,7 +265,7 @@ public class DeliveryNetworkManager
                     ObjectId = vehicle.Vehicle.ObjectId,
                     Guid = vehicle.GUID,
                     Name = vehicle.Vehicle.vehicleName,
-                    Code = DeliveryProject.RequestedVehicleCode,
+                    Code = vehicle.Vehicle.VehicleCode,
                     Color = (int)vehicle.Vehicle.Color.displayedColor,
                 });
             }
@@ -284,7 +319,7 @@ public class DeliveryNetworkManager
                                               .WithGuid(deliveryGuid)
                                               .Build();
 
-                    PoolManager.Instance.AddToPool(deliveryVehicle);
+                    PoolManager.Instance.AddToPool(deliveryVehicle, notify: false); // don't notify back
                 }
 
                 _logger.Msg($"Pool synchronized: {PoolManager.Instance.Pool.Count} vehicles");
@@ -373,7 +408,7 @@ public class DeliveryNetworkManager
 
         _logger.Msg($"Member joined: {e.Member.DisplayName}");
 
-        await System.Threading.Tasks.Task.Delay(1000);
+        await Task.Delay(1000);
 
         var response = new VehiclePoolSyncResponse();
         foreach (var vehicle in PoolManager.Instance.Pool)
@@ -383,7 +418,7 @@ public class DeliveryNetworkManager
                 ObjectId = vehicle.Vehicle.ObjectId,
                 Guid = vehicle.GUID,
                 Name = vehicle.Vehicle.vehicleName,
-                Code = DeliveryProject.RequestedVehicleCode,
+                Code = vehicle.Vehicle.VehicleCode,
                 Color = (int)vehicle.Vehicle.Color.displayedColor
             });
         }

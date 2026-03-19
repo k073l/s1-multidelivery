@@ -16,11 +16,24 @@ public class VehicleSave : Saveable
     [SaveableField("VehicleSaveData")] private List<VehicleSaveDto> _dtos = [];
     public override SaveableLoadOrder LoadOrder => SaveableLoadOrder.BeforeBaseGame;
 
+    private static readonly Logger Logger = new(nameof(VehicleSave));
     public static VehicleSave Instance { get; private set; } = new();
 
     public VehicleSave()
     {
         Instance = this;
+    }
+
+    public void AddVehicle(LandVehicle vehicle)
+    {
+        var dto = new VehicleSaveDto
+        {
+            Guid = vehicle.GUID.ToString(),
+            VehicleType = vehicle.VehicleCode,
+            Color = vehicle.Color.displayedColor,
+        };
+        if (_dtos.Contains(dto)) return;
+        _dtos.Add(dto);
     }
 
     protected override void OnLoaded()
@@ -29,7 +42,7 @@ public class VehicleSave : Saveable
 
         for (var i = 0; i < _dtos.Count; ++i)
         {
-            MelonDebug.Msg($"Loading vehicle {i}: {_dtos[i].Guid}");
+            Logger.Debug($"Loading vehicle {i}: {_dtos[i].Guid}");
 
             var guid = Guid.Parse(_dtos[i].Guid);
             var vehicle = new LandVehicleBuilder()
@@ -42,21 +55,21 @@ public class VehicleSave : Saveable
             // Color is not properly applied if we load before base game
             MelonCoroutines.Start(DeferredSetColor(vehicle, _dtos[i].Color));
 
-            MelonDebug.Msg($"Built LandVehicle: {vehicle.vehicleName}, ObjectId: {vehicle.ObjectId}");
+            Logger.Debug($"Built LandVehicle: {vehicle.vehicleName}, ObjectId: {vehicle.ObjectId}");
 
             var deliveryVehicle = new DeliveryVehicleBuilder()
                 .WithLandVehicle(vehicle)
                 .WithGuid(guid)
                 .Build();
 
-            MelonDebug.Msg($"Built DeliveryVehicle: {deliveryVehicle.GUID}");
+            Logger.Debug($"Built DeliveryVehicle: {deliveryVehicle.GUID}");
 
             PoolManager.Instance.AddToPool(deliveryVehicle);
 
-            MelonDebug.Msg($"Added to pool. Pool count now: {PoolManager.Instance.Pool.Count}");
+            Logger.Debug($"Added to pool. Pool count now: {PoolManager.Instance.Pool.Count}");
         }
 
-        Melon<DeliveryProject>.Logger.Msg(
+        Logger.Msg(
             $"VehicleSave.OnLoaded complete. Final pool count: {PoolManager.Instance.Pool.Count}");
     }
 

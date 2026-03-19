@@ -4,11 +4,13 @@ using DeliveryProject.Helpers;
 using DeliveryProject.Network;
 using DeliveryProject.Persistence;
 using DeliveryProject.Pool;
+using DeliveryProject.Quest;
 using ScheduleOne.Vehicles.Modification;
 using Steamworks;
 using UnityEngine;
 #if MONO
 using FishNet;
+
 #else
 using Il2CppFishNet;
 #endif
@@ -42,11 +44,20 @@ public static class BuildInfo
 public class DeliveryProject : MelonMod
 {
     internal const string RequestedVehicleCode = "veeper";
-    private DeliveryNetworkManager _networkManager;
- 
+    private static readonly Logger Logger = new("");
+    private DeliveryNetworkManager? _networkManager;
+
+    internal static MelonPreferences_Category Category =
+        MelonPreferences.CreateCategory($"{nameof(DeliveryProject)}Settings", $"{nameof(DeliveryProject)}'s Settings");
+
+    internal static MelonPreferences_Entry<bool> NetworkLogging =
+        Category.CreateEntry("NetworkDebugLogs", false, "Enable Network Logs",
+            "Display networking-related debug logs in MelonLoader console/log file (may be verbose)"
+        );
+
     public override void OnInitializeMelon()
     {
-        Melon<DeliveryProject>.Logger.Msg("DeliveryProject initialized");
+        Logger.Msg("DeliveryProject initialized");
         MelonCoroutines.Start(InitializeNetworkManager());
     }
 
@@ -63,30 +74,38 @@ public class DeliveryProject : MelonMod
     {
         yield return new WaitUntil(SteamAPI.Init);
         yield return null;
-        
+
         // Initialize network manager
         _networkManager = new DeliveryNetworkManager();
         if (_networkManager.Initialize())
         {
-            Melon<DeliveryProject>.Logger.Msg("Network manager initialized");
-                
+            Logger.Msg("Network manager initialized");
+
             // Wire up to the pool manager
-            PoolManager.Instance.InitializeNetworking(_networkManager);
+            NetworkConvenienceMethods.InitializeNetworking(_networkManager);
         }
         else
         {
-            Melon<DeliveryProject>.Logger.Warning("Network manager initialization failed - running in offline mode");
+            Logger.Warning("Network manager initialization failed - running in offline mode");
         }
     }
 
     public override void OnUpdate()
     {
         _networkManager?.Update();
+        if (Input.GetKeyDown(KeyCode.F6))
+        {
+            var zone = VehicleDropoffZoneFactory.CreateZone(
+                new Vector3(5.10f, 4.2f, 82.58f),
+                new Vector3(0.55f, 4.2f, 76.56f)
+            );
+            Logger.Msg(zone);
+        }
     }
- 
+
     public override void OnDeinitializeMelon()
     {
         _networkManager?.Dispose();
-        Melon<DeliveryProject>.Logger.Msg("DeliveryProject shut down");
+        Logger.Msg("DeliveryProject deinitialized");
     }
 }

@@ -37,9 +37,9 @@ public class VehicleAddedMessage : P2PMessage
 /// <summary>
 /// Message sent when a vehicle is removed from the pool
 /// </summary>
-public class VehicleRemovedMessage : P2PMessage
+public class VehicleCreatedMessage : P2PMessage
 {
-    public override string MessageType => "VehicleRemoved";
+    public override string MessageType => "VehicleCreated";
 
     public int ObjectId { get; set; }
     public string VehicleGuid { get; set; }

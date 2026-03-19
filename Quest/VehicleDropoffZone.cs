@@ -18,6 +18,8 @@ public class VehicleDropoffZone : MonoBehaviour
     private Material _visualMaterial;
     private Color _baseColor;
 
+    private DropoffQuest? _quest;
+
     public Vector3 Corner1 { get; private set; }
     public Vector3 Corner2 { get; private set; }
     public bool ShowVisuals { get; set; } = true;
@@ -96,6 +98,7 @@ public class VehicleDropoffZone : MonoBehaviour
 
         PoolManager.Instance.AddToSaveData(deliveryVehicle);
         PoolManager.Instance.AddToPool(deliveryVehicle);
+        if (_quest is { } dq) dq.MarkAddVehicleEntryComplete();
         _logger.Msg($"Vehicle added to pool. Total vehicles: {PoolManager.Instance.Pool.Count}");
     }
 
@@ -186,6 +189,11 @@ public class VehicleDropoffZone : MonoBehaviour
         {
             _visualPlane.SetActive(enabled);
         }
+    }
+
+    public void SetQuest(DropoffQuest quest)
+    {
+        _quest = quest;
     }
 
     private void OnDestroy()

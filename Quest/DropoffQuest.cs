@@ -1,0 +1,99 @@
+﻿using System.Collections;
+using DeliveryProject.Pool;
+using MelonLoader;
+using S1API.Entities;
+using S1API.Entities.NPCs.Westville;
+using S1API.Quests;
+using S1API.Saveables;
+using UnityEngine;
+using Object = UnityEngine.Object;
+
+namespace DeliveryProject.Quest;
+
+public class DropoffQuest : S1API.Quests.Quest
+{
+    protected override string Title => "Expanding Delivery Fleet";
+
+    protected override string Description =>
+        "Bring a delivery vehicle to the dropoff zone to expand your delivery capacity";
+
+    protected override bool AutoBegin => false;
+
+    private bool _vehicleAdded;
+
+    private QuestEntry _addVehicleEntry;
+
+    private int _startingCapacity;
+
+    private static VehicleDropoffZone dropoffZone;
+    private static Vector3 _dropoffZonePosition;
+    private static readonly Logger Logger = new(nameof(DropoffQuest));
+
+    protected override void OnCreated()
+    {
+        base.OnCreated();
+        _startingCapacity = PoolManager.Instance.Pool.Count;
+        Logger.Debug($"Starting Quest with {_startingCapacity} capacity");
+        var vec1 = new Vector3(5.10f, 4.2f, 82.58f);
+        var vec2 = new Vector3(0.55f, 4.2f, 76.56f);
+        _dropoffZonePosition = (vec1 + vec2) / 2f;
+        if (dropoffZone != null) Object.Destroy(dropoffZone.gameObject);
+        dropoffZone = VehicleDropoffZoneFactory.CreateZone(
+            vec1,
+            vec2,
+            visualColor: new Color(0f, 1f, 0f, 0.4f),
+            attachedQuest: this
+        );
+        Logger.Debug($"Dropoff zone created. Spawning {dropoffZone.name}");
+        OnComplete += Completed;
+        Logger.Debug("Wired completion event");
+        UpdateQuestEntries();
+    }
+
+    private void UpdateQuestEntries()
+    {
+        QuestEntries.Clear();
+        if (!_vehicleAdded)
+        {
+            Logger.Debug("Adding add vehicle entry");
+            _addVehicleEntry = AddEntry($"Purchase a " +
+                                        $"{char.ToUpper(DeliveryProject.RequestedVehicleCode[0]) + DeliveryProject.RequestedVehicleCode[1..]} " +
+                                        $"and drive it into the green dropoff zone (top floor of the parking garage, next to storage unit)",
+                _dropoffZonePosition);
+            _addVehicleEntry.Begin();
+        }
+
+        Logger.Debug("Entries added!");
+    }
+
+    public void MarkAddVehicleEntryComplete()
+    {
+        Logger.Debug("Marked add vehicle entry as completed");
+        _addVehicleEntry.Complete();
+    }
+
+    private void Completed()
+    {
+        Logger.Msg("Delivery vehicle dropoff quest completed!");
+        MelonCoroutines.Start(NotifyCompletion());
+    }
+
+    private IEnumerator NotifyCompletion()
+    {
+        for (var i = 0; i < 3; ++i)
+        {
+            if (PoolManager.Instance.Pool.Count > _startingCapacity) break;
+            yield return new WaitForSeconds(3f);
+        }
+
+        // well now we should have bigger capacity
+        var npc = NPC.Get<MegCooley>();
+        if (npc != null)
+        {
+            if (PoolManager.Instance.Pool.Count <= _startingCapacity) npc.SendTextMessage("Something went wrong... Vehicle got in a car crash :(");
+            else
+                npc.SendTextMessage(
+                    $"Thanks, you now can order {PoolManager.Instance.Pool.Count + 1} deliveries from stores!"); // +1, we account for base vehicle
+        }
+    }
+}

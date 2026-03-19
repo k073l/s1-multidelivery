@@ -9,12 +9,14 @@ public static class VehicleDropoffZoneFactory
         Vector3 corner2,
         float height = 5f,
         Color? visualColor = null,
-        bool showVisuals = true)
+        bool showVisuals = true,
+        DropoffQuest? attachedQuest = null)
     {
         var zoneObject = new GameObject("VehicleDropoffZone");
         var zone = zoneObject.AddComponent<VehicleDropoffZone>();
         zone.ShowVisuals = showVisuals;
         zone.SetupZone(corner1, corner2, height, visualColor);
+        if (attachedQuest != null) zone.SetQuest(attachedQuest);
 
         return zone;
     }

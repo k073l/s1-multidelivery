@@ -87,6 +87,8 @@ public class LandVehicleBuilder
         component.gameObject.name = _vehicleName;
         component.vehicleName = _vehicleName;
         component.SetIsPlayerOwned(null, false);
+        component.Rb.isKinematic = false;
+        component.Owner.ClientId = -1;
 
         component.ApplyColor(_color);
 

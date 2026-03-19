@@ -115,14 +115,14 @@ public class VehiclePoolSyncResponse : P2PMessage
         ParseJsonBase(json);
 
         // simple JSON array parsing
-        var vehiclesStart = json.IndexOf("\"Vehicles\":[") + 12;
-        var vehiclesEnd = json.IndexOf("]", vehiclesStart);
+        var vehiclesStart = json.IndexOf("\"Vehicles\":[", StringComparison.Ordinal) + 12;
+        var vehiclesEnd = json.IndexOf("]", vehiclesStart, StringComparison.Ordinal);
         var vehiclesSection = json.Substring(vehiclesStart, vehiclesEnd - vehiclesStart);
 
         Vehicles.Clear();
         if (string.IsNullOrWhiteSpace(vehiclesSection)) return;
 
-        var vehicleObjects = vehiclesSection.Split(new[] { "}," }, StringSplitOptions.None);
+        var vehicleObjects = vehiclesSection.Split(["},"], StringSplitOptions.None);
         foreach (var vehicleJson in vehicleObjects)
         {
             var cleanJson = vehicleJson.TrimStart('{').TrimEnd('}') + "}";

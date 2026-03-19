@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using MelonLoader;
 using SteamNetworkLib;
-using SteamNetworkLib.Models;
 using DeliveryProject.Pool;
 using DeliveryProject.Builders;
-using DeliveryProject.Persistence;
 using UnityEngine;
 
 #if MONO
@@ -33,19 +28,18 @@ namespace DeliveryProject.Network;
 public class DeliveryNetworkManager
 {
     private SteamNetworkClient _client;
-    private readonly MelonLogger.Instance _logger;
+    private readonly Logger _logger;
 
     private const string ModDataKey = "DeliveryProject_Version";
     private const string ModVersion = "1.0.0";
 
-    public bool IsInitialized => _client != null;
-    public bool IsInLobby => _client?.IsInLobby ?? false;
-    public bool IsHost => _client?.IsHost ?? false;
-    public bool IsSingleplayer => !IsInLobby;
+    private bool IsInLobby => _client?.IsInLobby ?? false;
+    private bool IsHost => _client?.IsHost ?? false;
+    private bool IsSingleplayer => !IsInLobby;
 
     public DeliveryNetworkManager()
     {
-        _logger = new MelonLogger.Instance("DeliveryProject-Network");
+        _logger = new Logger("Network");
     }
 
     public bool Initialize()
@@ -430,7 +424,7 @@ public class DeliveryNetworkManager
     /// <summary>
     /// Find a LandVehicle by its ObjectId (FishNet network ID)
     /// </summary>
-    private LandVehicle FindLandVehicleByObjectId(int objectId)
+    private LandVehicle? FindLandVehicleByObjectId(int objectId)
     {
         var mainScene = UnityEngine.SceneManagement.SceneManager.GetSceneByName("Main");
         if (!mainScene.isLoaded)
@@ -457,10 +451,11 @@ public class DeliveryNetworkManager
         return null;
     }
 
-    private IEnumerator ExponentialBackoff(Func<bool> predicate, float initialDelay, float finalDelay, float timeout)
+    private static IEnumerator ExponentialBackoff(Func<bool> predicate, float initialDelay, float finalDelay,
+        float timeout)
     {
         var delay = initialDelay;
-        float elapsed = 0f;
+        var elapsed = 0f;
 
         while (!predicate() && elapsed < timeout)
         {

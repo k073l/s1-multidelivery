@@ -1,4 +1,8 @@
-﻿using ScheduleOne.Delivery;
+﻿#if MONO
+using ScheduleOne.Delivery;
+#else
+using Il2CppScheduleOne.Delivery;
+#endif
 
 namespace DeliveryProject.Network;
 

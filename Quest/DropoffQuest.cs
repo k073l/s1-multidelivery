@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using DeliveryProject.Helpers;
 using DeliveryProject.Pool;
 using MelonLoader;
 using S1API.Entities;
@@ -61,7 +62,7 @@ public class DropoffQuest : S1API.Quests.Quest
         {
             Logger.Debug("Adding add vehicle entry");
             _addVehicleEntry = AddEntry($"Purchase a " +
-                                        $"{char.ToUpper(DeliveryProject.RequestedVehicleCode[0]) + DeliveryProject.RequestedVehicleCode[1..]} " +
+                                        $"{DeliveryProject.RequestedVehicleCode.Capitalize()} " +
                                         $"and drive it into the green dropoff zone (top floor of the parking garage, next to storage unit)",
                 _dropoffZonePosition);
             _addVehicleEntry.Begin();

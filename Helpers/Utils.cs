@@ -380,4 +380,10 @@ public static class Utils
         renderer.material = mat;
         return originalMaterial;
     }
+
+    public static string Capitalize(this string str)
+    {
+        if (str.Length < 1) throw new ArgumentOutOfRangeException(nameof(str));
+        return char.ToUpper(str[0]) + str[1..];
+    }
 }

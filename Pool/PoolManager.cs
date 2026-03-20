@@ -1,8 +1,13 @@
 ﻿using DeliveryProject.Network;
 using DeliveryProject.Persistence;
 using MelonLoader;
+#if MONO
 using ScheduleOne.Delivery;
 using ScheduleOne.UI.Shop;
+#else
+using Il2CppScheduleOne.Delivery;
+using Il2CppScheduleOne.UI.Shop;
+#endif
 
 namespace DeliveryProject.Pool;
 

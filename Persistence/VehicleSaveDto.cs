@@ -1,5 +1,8 @@
-﻿using ScheduleOne.Vehicles.Modification;
-using UnityEngine;
+﻿#if MONO
+using ScheduleOne.Vehicles.Modification;
+#else
+using Il2CppScheduleOne.Vehicles.Modification;
+#endif
 
 namespace DeliveryProject.Persistence;
 

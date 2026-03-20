@@ -1,6 +1,11 @@
 ﻿using HarmonyLib;
+#if MONO
 using ScheduleOne.Delivery;
 using ScheduleOne.Vehicles;
+#else
+using Il2CppScheduleOne.Delivery;
+using Il2CppScheduleOne.Vehicles;
+#endif
 
 namespace DeliveryProject.Pool;
 

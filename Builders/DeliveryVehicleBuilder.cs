@@ -1,5 +1,12 @@
-﻿using ScheduleOne.Delivery;
+﻿#if MONO
+using ScheduleOne.Delivery;
 using ScheduleOne.Vehicles;
+using Guid = System.Guid;
+#else
+using Il2CppScheduleOne.Delivery;
+using Il2CppScheduleOne.Vehicles;
+using Guid = Il2CppSystem.Guid;
+#endif
 using UnityEngine;
 
 namespace DeliveryProject.Builders;

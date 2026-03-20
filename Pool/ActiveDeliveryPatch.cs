@@ -1,8 +1,13 @@
 ﻿using DeliveryProject.Network;
 using HarmonyLib;
 using MelonLoader;
+#if MONO
 using ScheduleOne.Delivery;
 using ScheduleOne.UI.Phone.Delivery;
+#else
+using Il2CppScheduleOne.Delivery;
+using Il2CppScheduleOne.UI.Phone.Delivery;
+#endif
 
 namespace DeliveryProject.Pool;
 

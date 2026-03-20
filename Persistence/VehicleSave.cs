@@ -4,10 +4,19 @@ using DeliveryProject.Pool;
 using MelonLoader;
 using S1API.Internal.Abstraction;
 using S1API.Saveables;
+#if MONO
 using ScheduleOne.Delivery;
 using ScheduleOne.PlayerScripts;
 using ScheduleOne.Vehicles;
 using ScheduleOne.Vehicles.Modification;
+using Guid = System.Guid;
+#else
+using Il2CppScheduleOne.Delivery;
+using Il2CppScheduleOne.PlayerScripts;
+using Il2CppScheduleOne.Vehicles;
+using Il2CppScheduleOne.Vehicles.Modification;
+using Guid = Il2CppSystem.Guid;
+#endif
 
 namespace DeliveryProject.Persistence;
 
@@ -17,7 +26,7 @@ public class VehicleSave : Saveable
     public override SaveableLoadOrder LoadOrder => SaveableLoadOrder.BeforeBaseGame;
 
     private static readonly Logger Logger = new(nameof(VehicleSave));
-    public static VehicleSave Instance { get; private set; } = new();
+    public static VehicleSave Instance { get; set; } = new();
 
     public VehicleSave()
     {

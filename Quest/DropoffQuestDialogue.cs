@@ -1,4 +1,5 @@
-﻿using DeliveryProject.Pool;
+﻿using DeliveryProject.Helpers;
+using DeliveryProject.Pool;
 using S1API.Dialogues;
 using S1API.Entities.NPCs.Suburbia;
 using S1API.Quests;
@@ -21,12 +22,11 @@ public class DropoffQuestDialogue
             return;
         }
 
-        // Build the dialogue container with all possible paths
         jeremy.Dialogue.BuildAndRegisterContainer(ContainerName, c =>
         {
             // First time offer (pool empty)
             c.AddNode("OFFER_FIRST",
-                "Yeah! I can help with that. If you buy a delivery vehicle and bring it to the dropoff zone, I'll add it to your fleet. This will let you handle multiple deliveries at once. Want to give it a shot?",
+                $"Yeah! I can help with that. If you bring a {DeliveryProject.RequestedVehicleCode.Capitalize()} to the dropoff zone, I'll add it to the fleet. This will let you handle multiple deliveries at once. Want to give it a shot?",
                 ch =>
                 {
                     ch.Add("ACCEPT", "Sure, let's do it!", "ACCEPTED");
@@ -42,20 +42,16 @@ public class DropoffQuestDialogue
                     ch.Add("DECLINE", "Not right now.", "DECLINED");
                 });
 
-            // Quest already in progress
             c.AddNode("IN_PROGRESS",
                 "You already have an active delivery expansion going! Just bring the vehicle to the dropoff zone - check your map if you forgot where it is.");
 
-            // Acceptance response
             c.AddNode("ACCEPTED",
                 "Great! I've marked the dropoff zone on your map - top floor of the parking garage, next to the storage units. Just drive the vehicle in there when you're ready.");
 
-            // Decline response
             c.AddNode("DECLINED",
                 "No worries, just let me know if you change your mind!");
         });
 
-        // Accept callback - start the quest
         jeremy.Dialogue.OnChoiceSelected("ACCEPT", () =>
         {
             var quest = QuestManager.GetQuestByName(DropoffQuest.Name) as DropoffQuest;
@@ -73,13 +69,8 @@ public class DropoffQuestDialogue
             }
         });
 
-        // Decline callback
-        jeremy.Dialogue.OnChoiceSelected("DECLINE", () =>
-        {
-            Logger.Debug("Player declined quest");
-        });
+        jeremy.Dialogue.OnChoiceSelected("DECLINE", () => { Logger.Debug("Player declined quest"); });
 
-        // Inject into Jeremy's dialogue - with dynamic routing in onConfirmed
         DialogueInjector.Register(new DialogueInjection(
             npc: jeremy.ID,
             container: "Dealership_Salesman_Sell",
@@ -89,13 +80,12 @@ public class DropoffQuestDialogue
             text: "Can I expand my delivery capacity?",
             onConfirmed: () =>
             {
-                // Determine which node to jump to based on state
                 var quest = QuestManager.GetQuestByName(DropoffQuest.Name) as DropoffQuest;
                 var hasExpandedBefore = PoolManager.Instance.Pool.Count > 0;
                 var questActive = quest is { State: QuestState.Active };
 
                 Logger.Debug($"Quest state - Active: {questActive}, Has expanded: {hasExpandedBefore}");
-    
+
                 string targetNode;
                 if (questActive)
                 {
@@ -111,7 +101,7 @@ public class DropoffQuestDialogue
                 }
 
                 Logger.Debug($"Attempting to jump to container '{ContainerName}', node '{targetNode}'");
-    
+
                 try
                 {
                     jeremy.Dialogue.JumpTo(ContainerName, targetNode);

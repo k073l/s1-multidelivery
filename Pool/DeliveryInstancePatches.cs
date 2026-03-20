@@ -1,10 +1,17 @@
 ﻿using DeliveryProject.Network;
 using HarmonyLib;
+using UnityEngine;
+#if MONO
 using ScheduleOne;
 using ScheduleOne.Delivery;
 using ScheduleOne.UI.Shop;
-using UnityEngine;
 using Console = ScheduleOne.Console;
+#else
+using Il2CppScheduleOne;
+using Il2CppScheduleOne.Delivery;
+using Il2CppScheduleOne.UI.Shop;
+using Console = Il2CppScheduleOne.Console;
+#endif
 
 namespace DeliveryProject.Pool;
 

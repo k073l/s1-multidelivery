@@ -1,13 +1,28 @@
 ﻿using HarmonyLib;
 using MelonLoader;
+using UnityEngine;
+#if MONO
 using ScheduleOne.Delivery;
 using ScheduleOne.DevUtilities;
 using ScheduleOne.Persistence.Datas;
 using ScheduleOne.Persistence.Loaders;
 using ScheduleOne.Vehicles;
 using ScheduleOne.Vehicles.Modification;
-using UnityEngine;
 using Console = ScheduleOne.Console;
+using Guid = System.Guid;
+#else
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using Il2CppScheduleOne.Delivery;
+using Il2CppScheduleOne.DevUtilities;
+using Il2CppScheduleOne.Persistence.Datas;
+using Il2CppScheduleOne.Persistence.Loaders;
+using Il2CppScheduleOne.Vehicles;
+using Il2CppScheduleOne.Vehicles.Modification;
+using Il2CppScheduleOne.Graffiti;
+using Console = Il2CppScheduleOne.Console;
+using Il2Cpp;
+using Guid = Il2CppSystem.Guid;
+#endif
 
 namespace DeliveryProject.Pool;
 
@@ -70,7 +85,7 @@ internal static class LoaderPatch
         {
             Console.Log("Loading legacy delivery vehicles at: " + mainPath);
             var parentPath = Path.Combine(mainPath, "DeliveryVehicles");
-            List<DirectoryInfo> directories = __instance.GetDirectories(parentPath);
+            var directories = __instance.GetDirectories(parentPath);
             for (var j = 0; j < directories.Count; j++)
             {
                 __instance.LoadVehicle(directories[j].FullName);
@@ -124,13 +139,28 @@ internal static class LoaderPatch
         }
 
         if (data.SpraySurfaces == null) return;
-        for (var i = 0; i < data.SpraySurfaces.Count; i++)
+        try
         {
-            if (vehicle._spraySurfaces.Length > i)
+            for (var i = 0; i < data.SpraySurfaces.Count; i++)
             {
-                vehicle._spraySurfaces[i].Set(null, data.SpraySurfaces[i].Strokes.ToArray(),
-                    data.SpraySurfaces[i].ContainsCartelGraffiti);
+                if (vehicle._spraySurfaces.Length > i)
+                {
+#if MONO
+                    vehicle._spraySurfaces[i]
+                        ?.Set(null, data.SpraySurfaces[i].Strokes.ToArray(),
+                            data.SpraySurfaces[i].ContainsCartelGraffiti);
+#else
+                    vehicle._spraySurfaces[i]
+                        ?.Set(null, data.SpraySurfaces[i].Strokes.ToArray().Cast<Il2CppReferenceArray<SprayStroke>>(),
+                            data.SpraySurfaces[i].ContainsCartelGraffiti);
+#endif
+                }
             }
+        }
+        catch (Exception e)
+        {
+            Logger.Error("Exception thrown while loading saved graffities", e);
+            // ignore
         }
     }
 }

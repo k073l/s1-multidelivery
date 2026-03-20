@@ -1,11 +1,19 @@
 ﻿using DeliveryProject.Builders;
+using DeliveryProject.Helpers;
 using DeliveryProject.Persistence;
 using DeliveryProject.Pool;
 using MelonLoader;
+using UnityEngine;
+#if MONO
 using ScheduleOne.Delivery;
 using ScheduleOne.DevUtilities;
 using ScheduleOne.Vehicles;
-using UnityEngine;
+#else
+using Il2CppScheduleOne.Delivery;
+using Il2CppScheduleOne.DevUtilities;
+using Il2CppScheduleOne.Vehicles;
+#endif
+
 
 namespace DeliveryProject.Quest;
 
@@ -42,7 +50,7 @@ public class VehicleDropoffZone : MonoBehaviour
     {
         if (_detector.vehicles.Count > 0)
         {
-            foreach (var vehicle in _detector.vehicles.ToList())
+            foreach (var vehicle in _detector.vehicles.AsEnumerable())
             {
                 OnVehicleEntered(vehicle);
             }

@@ -24,4 +24,5 @@ This section can contain multiple screenshots showcasing the mod's features.
 - Someone who helped with something
 
 ## License
-This mod is licensed under (YOUR CHOOSEN LICENSE - UPDATE THIS FIELD!). See the LICENSE.md file for more information.
+TODO: https://lucide.dev/icons/van
+This mod is licensed under MIT License. See the LICENSE.md file for more information.

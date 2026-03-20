@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Reflection;
 using MelonLoader;
 using DeliveryProject.Helpers;
 using DeliveryProject.Network;
@@ -9,6 +10,7 @@ using S1API.Entities;
 using S1API.Entities.NPCs.Suburbia;
 using S1API.Leveling;
 using S1API.Quests;
+using S1API.Utils;
 using UnityEngine;
 using static DeliveryProject.Quest.DropoffQuestDialogue;
 #if MONO
@@ -39,8 +41,8 @@ namespace DeliveryProject;
 public static class BuildInfo
 {
     public const string Name = "DeliveryProject";
-    public const string Description = "does stuff i guess";
-    public const string Author = "me";
+    public const string Description = "Add vehicles, order multiple deliveries from the same place!";
+    public const string Author = "k073l";
     public const string Version = "1.0.0";
 }
 
@@ -49,7 +51,9 @@ public class DeliveryProject : MelonMod
     internal const string RequestedVehicleCode = "veeper";
 
     private static FullRank RequiredRank = new(Rank.Enforcer, 1);
+    public static Sprite QuestIconSprite => GetIcon(ref _questIconSprite, $"{nameof(DeliveryProject)}.assets.quest_icon.png");
 
+    private static Sprite _questIconSprite;
     private static readonly Logger Logger = new("");
     private DeliveryNetworkManager? _networkManager;
     private bool _networkManagerFailed;
@@ -164,5 +168,29 @@ public class DeliveryProject : MelonMod
 
         DropoffQuestDialogue.Register();
         LevelManager.OnXPChanged -= SendMessageIfRequiredRank;
+    }
+    
+    private static Sprite LoadEmbeddedPNG(string resourceName)
+    {
+        var asm = Assembly.GetExecutingAssembly();
+
+        using var stream = asm.GetManifestResourceStream(resourceName);
+        if (stream == null) return null;
+
+        var data = new byte[stream.Length];
+        stream.Read(data, 0, data.Length);
+        var sprite = ImageUtils.LoadImageRaw(data);
+        if (sprite != null) sprite.name = resourceName;
+        return sprite;
+    }
+
+    private static Sprite GetIcon(ref Sprite spriteField, string resourceName)
+    {
+        if (spriteField == null)
+        {
+            spriteField = LoadEmbeddedPNG(resourceName);
+        }
+
+        return spriteField;
     }
 }

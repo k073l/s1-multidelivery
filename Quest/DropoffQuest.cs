@@ -22,6 +22,8 @@ public class DropoffQuest : S1API.Quests.Quest
 
     protected override bool AutoBegin => false;
 
+    protected override Sprite QuestIcon => DeliveryProject.QuestIconSprite;
+
     internal QuestState State => QuestState;
 
     private bool _vehicleAdded;

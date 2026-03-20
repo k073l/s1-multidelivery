@@ -16,8 +16,8 @@
         <RootNamespace>DeliveryProject</RootNamespace>
 
         <Version>1.0.0</Version>
-        <Author>me</Author>
-        <Description>does stuff i guess</Description>
+        <Author>k073l</Author>
+        <Description>Add vehicles, order multiple deliveries from the same place!</Description>
 
         <Configurations>Mono;IL2CPP</Configurations>
     </PropertyGroup>
@@ -25,12 +25,11 @@
     <!-- Paths to other mods that script should add (no guard for mono/il2cpp incompat) -->
 
     <ItemGroup>
-        <PackageReference Include="HarmonyX" Version="2.10.2" />
-        <PackageReference Include="LavaGang.MelonLoader" Version="0.7.2" />
-        <PackageReference Include="S1API.Forked" Version="2.9.9" />
-        <Reference Include="SteamNetworkLib">
-            <HintPath>C:\Games\Schedule I\S1-files\Schedule I Mono\UserLibs\SteamNetworkLib-Mono.dll</HintPath>
-        </Reference>
+        <EmbeddedResource Include="assets\quest_icon.png"/>
+
+        <PackageReference Include="HarmonyX" Version="2.10.2"/>
+        <PackageReference Include="LavaGang.MelonLoader" Version="0.7.2"/>
+        <PackageReference Include="S1API.Forked" Version="2.9.9"/>
     </ItemGroup>
     <ItemGroup Label="IL2CPP-Refs" Condition="'$(IsMono)' != 'true'">
         <PackageReference Include="RefGen.Schedule-I.Il2Cpp" Version="0.4.4-f8"/>
@@ -63,6 +62,10 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <Publicize Include="Assembly-CSharp"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="assets\screenshots\" />
     </ItemGroup>
     
     <!-- MelonLoader References -->

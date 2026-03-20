@@ -68,6 +68,7 @@ public class DeliveryNetworkManager
         }
         catch (Exception ex)
         {
+            _client = null!;
             _logger.Error($"Failed to initialize network manager: {ex}");
             return false;
         }

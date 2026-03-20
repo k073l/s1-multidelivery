@@ -12,7 +12,7 @@ namespace DeliveryProject.Network;
 /// </summary>
 public static class NetworkConvenienceMethods
 {
-    private static DeliveryNetworkManager _networkManager;
+    private static DeliveryNetworkManager? _networkManager;
 
     public static void InitializeNetworking(DeliveryNetworkManager networkManager)
     {

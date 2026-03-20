@@ -63,7 +63,7 @@ public class VehicleDropoffZone : MonoBehaviour
 
         if (!IsCorrectVehicleType(vehicle))
         {
-            if (Time.frameCount % 30 == 0) _logger.Warning($"Wrong vehicle type: {vehicle.vehicleCode}");
+            if (Time.frameCount % 60 == 0) _logger.Warning($"Wrong vehicle type: {vehicle.vehicleCode}");
             return;
         }
 

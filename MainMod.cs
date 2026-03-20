@@ -5,14 +5,17 @@ using DeliveryProject.Network;
 using DeliveryProject.Persistence;
 using DeliveryProject.Pool;
 using DeliveryProject.Quest;
-using ScheduleOne.Vehicles.Modification;
-using Steamworks;
+using S1API.Entities;
+using S1API.Entities.NPCs.Suburbia;
+using S1API.Leveling;
+using S1API.Quests;
 using UnityEngine;
+using static DeliveryProject.Quest.DropoffQuestDialogue;
 #if MONO
-using FishNet;
+using Steamworks;
 
 #else
-using Il2CppFishNet;
+using Il2CppSteamworks;
 #endif
 
 [assembly: MelonInfo(
@@ -44,8 +47,12 @@ public static class BuildInfo
 public class DeliveryProject : MelonMod
 {
     internal const string RequestedVehicleCode = "veeper";
+
+    private static FullRank RequiredRank = new(Rank.Enforcer, 1);
+
     private static readonly Logger Logger = new("");
     private DeliveryNetworkManager? _networkManager;
+    private bool _networkManagerFailed;
 
     internal static MelonPreferences_Category Category =
         MelonPreferences.CreateCategory($"{nameof(DeliveryProject)}Settings", $"{nameof(DeliveryProject)}'s Settings");
@@ -63,16 +70,24 @@ public class DeliveryProject : MelonMod
 
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {
+        if (sceneName == "Main")
+        {
+            Player.LocalPlayerSpawned += WirePlayerEvent;
+            return;
+        }
+
         if (sceneName != "Menu") return;
         // Cleanup
         PoolManager.Instance.Pool.Clear();
         PoolManager.Instance.Allocations.Clear();
         PoolManager.Instance.BaseVehicleAllocationsForShop.Clear();
+        Player.LocalPlayerSpawned -= WirePlayerEvent;
+        LevelManager.OnXPChanged -= SendMessageIfRequiredRank;
     }
 
     private IEnumerator InitializeNetworkManager()
     {
-        yield return new WaitUntil(SteamAPI.Init);
+        if (!SteamAPI.Init()) yield break;
         yield return null;
 
         // Initialize network manager
@@ -86,20 +101,24 @@ public class DeliveryProject : MelonMod
         }
         else
         {
+            _networkManager = null;
             Logger.Warning("Network manager initialization failed - running in offline mode");
         }
     }
 
     public override void OnUpdate()
     {
-        _networkManager?.Update();
-        if (Input.GetKeyDown(KeyCode.F6))
+        if (_networkManagerFailed || _networkManager == null) return;
+        try
         {
-            var zone = VehicleDropoffZoneFactory.CreateZone(
-                new Vector3(5.10f, 4.2f, 82.58f),
-                new Vector3(0.55f, 4.2f, 76.56f)
-            );
-            Logger.Msg(zone);
+            _networkManager.Update();
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Error(
+                $"Network manager update failed: {ex.Message}\n" +
+                $"You can ignore this error if you plan on playing singleplayer only and don't want to install SteamNetworkLib");
+            _networkManagerFailed = true; // give up
         }
     }
 
@@ -107,5 +126,43 @@ public class DeliveryProject : MelonMod
     {
         _networkManager?.Dispose();
         Logger.Msg("DeliveryProject deinitialized");
+    }
+
+    private void WirePlayerEvent(Player _)
+    {
+        Logger.Debug("Player loaded event called");
+        if (PersistentDropoffQuestData.Instance.HasMessaged)
+        {
+            DropoffQuestDialogue.Register();
+            return;
+        }
+
+        MelonCoroutines.Start(WireOnXpChangedDelayed());
+    }
+
+    private IEnumerator WireOnXpChangedDelayed()
+    {
+        yield return new WaitUntil((Func<bool>)(() => LevelManager.Exists));
+        Logger.Debug("Wiring on xp changed");
+        LevelManager.OnXPChanged += SendMessageIfRequiredRank;
+    }
+
+    private void SendMessageIfRequiredRank(FullRank _, FullRank current)
+    {
+        Logger.Debug($"Current rank {current}, required: {RequiredRank}");
+
+        if (PersistentDropoffQuestData.Instance.HasMessaged) return;
+        if (current < RequiredRank) return;
+
+        var jeremy = NPC.Get<JeremyWilkinson>();
+        if (jeremy == null) return;
+
+        jeremy.SendTextMessage(
+            "Your properties are getting busy. Want to handle more than one delivery at a time? I've got an idea. Stop by the dealership."
+        );
+        PersistentDropoffQuestData.Instance.HasMessaged = true;
+
+        DropoffQuestDialogue.Register();
+        LevelManager.OnXPChanged -= SendMessageIfRequiredRank;
     }
 }

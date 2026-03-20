@@ -3,7 +3,7 @@ using DeliveryProject.Helpers;
 using DeliveryProject.Pool;
 using MelonLoader;
 using S1API.Entities;
-using S1API.Entities.NPCs.Westville;
+using S1API.Entities.NPCs.Suburbia;
 using S1API.Quests;
 using S1API.Quests.Constants;
 using S1API.Saveables;
@@ -92,14 +92,19 @@ public class DropoffQuest : S1API.Quests.Quest
         }
 
         // well now we should have bigger capacity
-        var npc = NPC.Get<MegCooley>();
+        var npc = NPC.Get<JeremyWilkinson>();
         if (npc != null)
         {
-            if (PoolManager.Instance.Pool.Count <= _startingCapacity) npc.SendTextMessage("Something went wrong... Vehicle got in a car crash :(");
+            if (PoolManager.Instance.Pool.Count <= _startingCapacity)
+                npc.SendTextMessage("Something went wrong... Vehicle got in a car crash :(");
             else
+            {
                 npc.SendTextMessage(
-                    $"Thanks, you now can order {PoolManager.Instance.Pool.Count + 1} deliveries from stores!"); // +1, we account for base vehicle
+                    $"Vehicle added, you now can order {PoolManager.Instance.Pool.Count} more " +
+                    $"deliver{(PoolManager.Instance.Pool.Count > 1 ? "y" : "ies")} " +
+                    $"from stores.");
+                npc.SendTextMessage("If you want to add more, you know where to find me.");
+            }
         }
-        // DropoffQuestDialogue.Register();
     }
 }

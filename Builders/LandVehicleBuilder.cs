@@ -50,7 +50,7 @@ public class LandVehicleBuilder
 
     public LandVehicleBuilder WithGuid(string guid)
     {
-        _guid = Guid.Parse(guid);
+        _guid = new Guid(guid);
         return this;
     }
 

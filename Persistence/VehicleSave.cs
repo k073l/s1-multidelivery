@@ -44,7 +44,7 @@ public class VehicleSave : Saveable
         {
             Logger.Debug($"Loading vehicle {i}: {_dtos[i].Guid}");
 
-            var guid = Guid.Parse(_dtos[i].Guid);
+            var guid = new Guid(_dtos[i].Guid);
             var vehicle = new LandVehicleBuilder()
                 .WithVehicleCode(_dtos[i].VehicleType)
                 .WithVehicleName($"Additional Delivery Vehicle {i + 1}")

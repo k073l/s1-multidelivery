@@ -17,7 +17,7 @@ public class DeliveryVehicleBuilder
 
     public DeliveryVehicleBuilder WithGuid(string guid)
     {
-        _guid = Guid.Parse(guid);
+        _guid = new Guid(guid);
         return this;
     }
 

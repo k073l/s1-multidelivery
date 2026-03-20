@@ -194,7 +194,7 @@ public class DeliveryNetworkManager
 
                 // The LandVehicle already has its own GUID from the network
                 // We use our custom GUID for the DeliveryVehicle component
-                var deliveryGuid = Guid.Parse(message.VehicleGuid);
+                var deliveryGuid = new Guid(message.VehicleGuid);
                 landVehicle.SetGUID(deliveryGuid);
                 landVehicle.ApplyColor((EVehicleColor)message.VehicleColor);
 
@@ -309,7 +309,7 @@ public class DeliveryNetworkManager
                         continue;
                     }
 
-                    var deliveryGuid = Guid.Parse(vehicleData.Guid);
+                    var deliveryGuid = new Guid(vehicleData.Guid);
                     landVehicle.SetGUID(deliveryGuid);
                     landVehicle.ApplyColor((EVehicleColor)vehicleData.Color);
 

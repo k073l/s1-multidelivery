@@ -4,6 +4,7 @@ using MelonLoader;
 using S1API.Entities;
 using S1API.Entities.NPCs.Westville;
 using S1API.Quests;
+using S1API.Quests.Constants;
 using S1API.Saveables;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -12,12 +13,15 @@ namespace DeliveryProject.Quest;
 
 public class DropoffQuest : S1API.Quests.Quest
 {
-    protected override string Title => "Expanding Delivery Fleet";
+    internal const string Name = "Expanding the Fleet";
+    protected override string Title => Name;
 
     protected override string Description =>
         "Bring a delivery vehicle to the dropoff zone to expand your delivery capacity";
 
     protected override bool AutoBegin => false;
+
+    internal QuestState State => QuestState;
 
     private bool _vehicleAdded;
 
@@ -95,5 +99,6 @@ public class DropoffQuest : S1API.Quests.Quest
                 npc.SendTextMessage(
                     $"Thanks, you now can order {PoolManager.Instance.Pool.Count + 1} deliveries from stores!"); // +1, we account for base vehicle
         }
+        // DropoffQuestDialogue.Register();
     }
 }

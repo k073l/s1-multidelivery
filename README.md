@@ -13,7 +13,7 @@ Expand your delivery capacity - order multiple deliveries from the same store si
     - Receive a message and go talk to Jeremy at the car dealership
     - Repeatable - visit him again to expand further
     - **Note:** If you're already Enforcer 1+, gain any XP to trigger the intro message
-- **Multiplayer support** - vehicle pool is shared across the lobby (requires SteamNetworkLib)
+- **Experimental multiplayer support** - vehicle pool is shared across the lobby (requires SteamNetworkLib)
 
 ## Screenshots
 

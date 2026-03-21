@@ -339,32 +339,46 @@ public class DeliveryNetworkManager
         _logger.Msg(
             $"Received allocation: Delivery={message.DeliveryId}, Vehicle={message.VehicleGuid}, Allocated={message.IsAllocated}");
 
-        try
-        {
-            var vehicle = PoolManager.Instance.Pool
-                .FirstOrDefault(v => v.GUID == message.VehicleGuid);
-
-            if (vehicle == null)
+        MelonCoroutines.Start(ProcessMessage());
+        IEnumerator ProcessMessage() {
+            yield return ExponentialBackoff(
+                () => UnityEngine.SceneManagement.SceneManager.GetSceneByName("Main").isLoaded, 1f, 30f, 60f);
+            yield return ExponentialBackoff(
+                () => PoolManager.Instance.Pool.FirstOrDefault(v => v.GUID == message.VehicleGuid) != null,
+                1f,
+                30f,
+                60f
+            );
+            try
             {
-                _logger.Warning($"Vehicle not found for allocation: {message.VehicleGuid}");
-                return;
-            }
+                var vehicle = PoolManager.Instance.Pool
+                    .FirstOrDefault(v => v.GUID == message.VehicleGuid);
 
-            if (message.IsAllocated)
-            {
-                if (!PoolManager.Instance.Allocations.ContainsKey(message.DeliveryId))
+                if (vehicle == null)
                 {
-                    PoolManager.Instance.Allocations.Add(message.DeliveryId, vehicle);
+                    _logger.Warning($"Vehicle not found for allocation: {message.VehicleGuid}");
+                    yield break;
+                }
+
+                if (message.IsAllocated)
+                {
+                    _logger.Msg($"Trying to allocate {message.VehicleGuid} for delivery {message.DeliveryId}");
+                    if (!PoolManager.Instance.Allocations.ContainsKey(message.DeliveryId))
+                    {
+                        _logger.Msg($"Allocating {message.VehicleGuid} for delivery {message.DeliveryId}");
+                        PoolManager.Instance.Allocations.Add(message.DeliveryId, vehicle);
+                    }
+                }
+                else
+                {
+                    _logger.Msg($"Deallocating {message.VehicleGuid} for delivery {message.DeliveryId}");
+                    PoolManager.Instance.Allocations.Remove(message.DeliveryId);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                PoolManager.Instance.Allocations.Remove(message.DeliveryId);
+                _logger.Error($"Failed to process allocation: {ex}");
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.Error($"Failed to process allocation: {ex}");
         }
     }
 

@@ -107,6 +107,7 @@ internal static class LoaderPatch
 
         if (veh == null)
         {
+            Logger.Error("Vehicle not found with GUID", data.GUID);
             Console.LogError("LoadVehicle: Vehicle not found with GUID " + data.GUID);
         }
         else

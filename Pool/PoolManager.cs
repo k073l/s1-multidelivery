@@ -72,7 +72,7 @@ public class PoolManager
         }
 
         Allocations.Add(deliveryId, free);
-        Logger.Debug($"Allocated new vehicle for {deliveryId}");
+        Logger.Debug($"Allocated new vehicle for {deliveryId}, vehicle: {free.GUID}");
 
         // Notify network of allocation
         NetworkConvenienceMethods.NotifyAllocation(deliveryId, free, isAllocated: true);

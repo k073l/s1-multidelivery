@@ -4,7 +4,7 @@ using ScheduleOne.Delivery;
 using Il2CppScheduleOne.Delivery;
 #endif
 
-namespace DeliveryProject.Network;
+namespace MultiDelivery.Network;
 
 /// <summary>
 /// Convenience methods for <see cref="DeliveryNetworkManager"/>.

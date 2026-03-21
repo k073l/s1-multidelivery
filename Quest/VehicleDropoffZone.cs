@@ -1,8 +1,8 @@
-﻿using DeliveryProject.Builders;
-using DeliveryProject.Helpers;
-using DeliveryProject.Persistence;
-using DeliveryProject.Pool;
+﻿using MultiDelivery.Helpers;
+using MultiDelivery.Persistence;
 using MelonLoader;
+using MultiDelivery.Builders;
+using MultiDelivery.Pool;
 using UnityEngine;
 #if MONO
 using ScheduleOne.Delivery;
@@ -15,7 +15,7 @@ using Il2CppScheduleOne.Vehicles;
 #endif
 
 
-namespace DeliveryProject.Quest;
+namespace MultiDelivery.Quest;
 
 [RegisterTypeInIl2Cpp]
 public class VehicleDropoffZone : MonoBehaviour
@@ -80,7 +80,7 @@ public class VehicleDropoffZone : MonoBehaviour
 
     private static bool IsCorrectVehicleType(LandVehicle vehicle)
     {
-        return vehicle.vehicleCode == DeliveryProject.RequestedVehicleCode;
+        return vehicle.vehicleCode == MultiDelivery.RequestedVehicleCode;
     }
 
     private void ProcessAndAddToPool(LandVehicle vehicle)

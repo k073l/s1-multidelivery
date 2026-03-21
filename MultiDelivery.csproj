@@ -13,7 +13,7 @@
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
 
-        <RootNamespace>DeliveryProject</RootNamespace>
+        <RootNamespace>MultiDelivery</RootNamespace>
 
         <Version>1.0.0</Version>
         <Author>k073l</Author>

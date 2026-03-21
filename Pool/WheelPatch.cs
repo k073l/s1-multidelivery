@@ -7,7 +7,7 @@ using Il2CppScheduleOne.Vehicles;
 using Il2CppScheduleOne.Weather;
 #endif
 
-namespace DeliveryProject.Pool;
+namespace MultiDelivery.Pool;
 
 [HarmonyPatch(typeof(Wheel))]
 internal class WheelPatch

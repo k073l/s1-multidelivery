@@ -1,6 +1,6 @@
-# DeliveryProject
+# MultiDelivery
 
-This is DeliveryProject's description. Replace this with your own mod description.
+This is MultiDelivery's description. Replace this with your own mod description.
 
 ## Features
 - Feature 1

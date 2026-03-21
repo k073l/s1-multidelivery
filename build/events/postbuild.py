@@ -8,14 +8,14 @@ Post-build helper for S1 mods: kill running game, clean mods dir, copy extras,
 copy the built mod, and launch (with Wine/Proton support on non-Windows).
 
 Windows usage:
-    python postbuild.py DeliveryProject.dll "C:/Games/S1/Mods" "C:/Games/S1/Schedule I.exe"
+    python postbuild.py MultiDelivery.dll "C:/Games/S1/Mods" "C:/Games/S1/Schedule I.exe"
 
 macOS/Linux with Wine:
-    python postbuild.py DeliveryProject.dll ~/Games/S1/Mods ~/Games/S1/Schedule\ I.exe \
+    python postbuild.py MultiDelivery.dll ~/Games/S1/Mods ~/Games/S1/Schedule\ I.exe \
         --wine-binary wine64 --wine-prefix ~/.wine
 
 Proton (Steam on Linux):
-    python postbuild.py DeliveryProject.dll \
+    python postbuild.py MultiDelivery.dll \
         ~/.steam/steam/steamapps/compatdata/APPID/pfx/drive_c/.../Mods \
         ~/.steam/steam/steamapps/compatdata/APPID/pfx/drive_c/.../Schedule\ I.exe \
         --wine-binary ~/.steam/steam/steamapps/common/Proton\ 9.0/proton \

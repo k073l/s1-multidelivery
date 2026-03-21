@@ -1,6 +1,6 @@
-﻿using DeliveryProject.Network;
-using DeliveryProject.Persistence;
-using MelonLoader;
+﻿using MelonLoader;
+using MultiDelivery.Network;
+using MultiDelivery.Persistence;
 #if MONO
 using ScheduleOne.Delivery;
 using ScheduleOne.UI.Shop;
@@ -9,7 +9,7 @@ using Il2CppScheduleOne.Delivery;
 using Il2CppScheduleOne.UI.Shop;
 #endif
 
-namespace DeliveryProject.Pool;
+namespace MultiDelivery.Pool;
 
 public class PoolManager
 {

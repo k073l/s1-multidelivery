@@ -20,7 +20,7 @@ using Il2CppFishNet;
 using Object = Il2CppSystem.Object;
 #endif
 
-namespace DeliveryProject.Helpers;
+namespace MultiDelivery.Helpers;
 
 /// <summary>
 /// Provides extension methods for converting between C# and Il2Cpp lists.

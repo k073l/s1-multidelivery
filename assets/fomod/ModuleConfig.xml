@@ -1,7 +1,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/ModConfig5.0.xsd">
 
-    <moduleName>DeliveryProject</moduleName>
+    <moduleName>MultiDelivery</moduleName>
     <moduleImage path="icon.png"/>
 
     <installSteps>
@@ -13,7 +13,7 @@
                             <description>Pick this version if you're playing on IL2CPP. &#10;This may be also known as NONE/BETA in Steam's beta participation. &#10;If you're unsure, you're likely on main, stable (none) release and thus you should pick this version.
                             </description>
                             <files>
-                                <file source="DeliveryProject-IL2CPP.dll" destination="Mods/DeliveryProject-IL2CPP.dll"/>
+                                <file source="MultiDelivery-IL2CPP.dll" destination="Mods/MultiDelivery-IL2CPP.dll"/>
                             </files>
                             <typeDescriptor>
                                 <type name="Recommended"/>
@@ -23,7 +23,7 @@
                             <description>Pick this version if you're playing on Mono. &#10;This may be also known as ALTERNATE/ALTERNATE BETA in Steam's beta participation.
                             </description>
                             <files>
-                                <file source="DeliveryProject-Mono.dll" destination="Mods/DeliveryProject-Mono.dll"/>
+                                <file source="MultiDelivery-Mono.dll" destination="Mods/MultiDelivery-Mono.dll"/>
                             </files>
                             <typeDescriptor>
                                 <type name="Optional"/>

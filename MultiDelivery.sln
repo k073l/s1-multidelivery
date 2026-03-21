@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryProject", "DeliveryProject.csproj", "{E25AA9AB-5CB4-4B7E-8FB6-69AB89D8FE09}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiDelivery", "MultiDelivery.csproj", "{E25AA9AB-5CB4-4B7E-8FB6-69AB89D8FE09}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

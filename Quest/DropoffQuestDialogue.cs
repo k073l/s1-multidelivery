@@ -1,5 +1,5 @@
-﻿using DeliveryProject.Helpers;
-using DeliveryProject.Pool;
+﻿using MultiDelivery.Helpers;
+using MultiDelivery.Pool;
 using S1API.Dialogues;
 using S1API.Entities.NPCs.Suburbia;
 using S1API.Money;
@@ -20,7 +20,7 @@ using Il2CppScheduleOne.NPCs.CharacterClasses;
 
 #endif
 
-namespace DeliveryProject.Quest;
+namespace MultiDelivery.Quest;
 
 public class DropoffQuestDialogue
 {
@@ -40,7 +40,7 @@ public class DropoffQuestDialogue
         {
             // First time offer (pool empty)
             c.AddNode("OFFER_FIRST",
-                $"Yeah! I can help with that. If you bring a {DeliveryProject.RequestedVehicleCode.Capitalize()} to the dropoff zone, I'll add it to the fleet. This will let you handle multiple deliveries at once. Want to give it a shot?",
+                $"Yeah! I can help with that. If you bring a {MultiDelivery.RequestedVehicleCode.Capitalize()} to the dropoff zone, I'll add it to the fleet. This will let you handle multiple deliveries at once. Want to give it a shot?",
                 ch =>
                 {
                     ch.Add("BUY_NOW", "Sure! Can I buy one from you right now?", "CHECK_FUNDS");
@@ -59,7 +59,7 @@ public class DropoffQuestDialogue
                 });
 
             c.AddNode("CHECK_FUNDS",
-                $"A {DeliveryProject.RequestedVehicleCode.Capitalize()} runs <color=#19BEF0>({MoneyManager.FormatAmount(GetVehiclePrice())})</color>. Want to pick one up?",
+                $"A {MultiDelivery.RequestedVehicleCode.Capitalize()} runs <color=#19BEF0>({MoneyManager.FormatAmount(GetVehiclePrice())})</color>. Want to pick one up?",
                 ch =>
                 {
                     ch.Add("PURCHASE",
@@ -95,21 +95,21 @@ public class DropoffQuestDialogue
 
             if (playerCash >= vehiclePrice)
             {
-                Money.CreateOnlineTransaction($"{DeliveryProject.RequestedVehicleCode.Capitalize()} purchase",
+                Money.CreateOnlineTransaction($"{MultiDelivery.RequestedVehicleCode.Capitalize()} purchase",
                     -vehiclePrice, 1f, "Bought as a part of delivery expansion");
-                Logger.Msg($"Player purchased {DeliveryProject.RequestedVehicleCode} for ${vehiclePrice:F2}");
+                Logger.Msg($"Player purchased {MultiDelivery.RequestedVehicleCode} for ${vehiclePrice:F2}");
                 var s1Jeremy = jeremy.gameObject.GetComponent<Jeremy>();
                 if (s1Jeremy != null)
                 {
                     var dealership = s1Jeremy.Dealership;
                     if (dealership != null)
                     {
-                        dealership.SpawnVehicle(DeliveryProject.RequestedVehicleCode);
+                        dealership.SpawnVehicle(MultiDelivery.RequestedVehicleCode);
                         return;
                     }
                 }
 
-                VehicleManager.Instance.SpawnVehicle(DeliveryProject.RequestedVehicleCode,
+                VehicleManager.Instance.SpawnVehicle(MultiDelivery.RequestedVehicleCode,
                     new Vector3(9.92f, 0.54f, -33.55f), Quaternion.identity, playerOwned: true);
             }
             else
@@ -164,7 +164,7 @@ public class DropoffQuestDialogue
 
     private static float GetVehiclePrice()
     {
-        var vehicleType = VehicleManager.Instance.GetVehiclePrefab(DeliveryProject.RequestedVehicleCode);
+        var vehicleType = VehicleManager.Instance.GetVehiclePrefab(MultiDelivery.RequestedVehicleCode);
         return vehicleType?.VehiclePrice ?? 5000f;
     }
 }

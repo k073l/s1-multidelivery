@@ -4,7 +4,7 @@ using ScheduleOne.Vehicles.Modification;
 using Il2CppScheduleOne.Vehicles.Modification;
 #endif
 
-namespace DeliveryProject.Persistence;
+namespace MultiDelivery.Persistence;
 
 public record VehicleSaveDto
 {

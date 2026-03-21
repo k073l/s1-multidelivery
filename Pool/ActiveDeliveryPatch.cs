@@ -1,6 +1,6 @@
-﻿using DeliveryProject.Network;
-using HarmonyLib;
+﻿using HarmonyLib;
 using MelonLoader;
+using MultiDelivery.Network;
 #if MONO
 using ScheduleOne.Delivery;
 using ScheduleOne.UI.Phone.Delivery;
@@ -9,7 +9,7 @@ using Il2CppScheduleOne.Delivery;
 using Il2CppScheduleOne.UI.Phone.Delivery;
 #endif
 
-namespace DeliveryProject.Pool;
+namespace MultiDelivery.Pool;
 
 [HarmonyPatch(typeof(DeliveryManager))]
 internal static class ActiveDeliveryPatch

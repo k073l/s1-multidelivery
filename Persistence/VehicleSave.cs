@@ -1,7 +1,7 @@
 ﻿using System.Collections;
-using DeliveryProject.Builders;
-using DeliveryProject.Pool;
 using MelonLoader;
+using MultiDelivery.Builders;
+using MultiDelivery.Pool;
 using S1API.Internal.Abstraction;
 using S1API.Saveables;
 #if MONO
@@ -18,7 +18,7 @@ using Il2CppScheduleOne.Vehicles.Modification;
 using Guid = Il2CppSystem.Guid;
 #endif
 
-namespace DeliveryProject.Persistence;
+namespace MultiDelivery.Persistence;
 
 public class VehicleSave : Saveable
 {
@@ -47,7 +47,7 @@ public class VehicleSave : Saveable
 
     protected override void OnLoaded()
     {
-        Melon<DeliveryProject>.Logger.Msg($"VehicleSave.OnLoaded: Loading {_dtos.Count} vehicles");
+        Melon<MultiDelivery>.Logger.Msg($"VehicleSave.OnLoaded: Loading {_dtos.Count} vehicles");
 
         for (var i = 0; i < _dtos.Count; ++i)
         {

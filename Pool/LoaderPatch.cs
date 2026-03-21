@@ -24,7 +24,7 @@ using Il2Cpp;
 using Guid = Il2CppSystem.Guid;
 #endif
 
-namespace DeliveryProject.Pool;
+namespace MultiDelivery.Pool;
 
 /// <summary>
 /// Replace the whole saved deliveries loader - was causing issues, so we have to remove a few offending lines

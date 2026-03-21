@@ -1,18 +1,18 @@
 using System.Collections;
 using System.Reflection;
 using MelonLoader;
-using DeliveryProject.Helpers;
-using DeliveryProject.Network;
-using DeliveryProject.Persistence;
-using DeliveryProject.Pool;
-using DeliveryProject.Quest;
+using MultiDelivery.Helpers;
+using MultiDelivery.Network;
+using MultiDelivery.Persistence;
+using MultiDelivery.Pool;
+using MultiDelivery.Quest;
 using S1API.Entities;
 using S1API.Entities.NPCs.Suburbia;
 using S1API.Leveling;
 using S1API.Quests;
 using S1API.Utils;
 using UnityEngine;
-using static DeliveryProject.Quest.DropoffQuestDialogue;
+using static MultiDelivery.Quest.DropoffQuestDialogue;
 #if MONO
 using Steamworks;
 
@@ -21,10 +21,10 @@ using Il2CppSteamworks;
 #endif
 
 [assembly: MelonInfo(
-    typeof(DeliveryProject.DeliveryProject),
-    DeliveryProject.BuildInfo.Name,
-    DeliveryProject.BuildInfo.Version,
-    DeliveryProject.BuildInfo.Author
+    typeof(MultiDelivery.MultiDelivery),
+    MultiDelivery.BuildInfo.Name,
+    MultiDelivery.BuildInfo.Version,
+    MultiDelivery.BuildInfo.Author
 )]
 [assembly: MelonColor(1, 255, 0, 0)]
 [assembly: MelonGame("TVGS", "Schedule I")]
@@ -36,22 +36,22 @@ using Il2CppSteamworks;
 [assembly: MelonPlatformDomain(MelonPlatformDomainAttribute.CompatibleDomains.IL2CPP)]
 #endif
 
-namespace DeliveryProject;
+namespace MultiDelivery;
 
 public static class BuildInfo
 {
-    public const string Name = "DeliveryProject";
+    public const string Name = "MultiDelivery";
     public const string Description = "Add vehicles, order multiple deliveries from the same place!";
     public const string Author = "k073l";
     public const string Version = "1.0.0";
 }
 
-public class DeliveryProject : MelonMod
+public class MultiDelivery : MelonMod
 {
     internal const string RequestedVehicleCode = "veeper";
 
     private static FullRank RequiredRank = new(Rank.Enforcer, 1);
-    public static Sprite QuestIconSprite => GetIcon(ref _questIconSprite, $"{nameof(DeliveryProject)}.assets.quest_icon.png");
+    public static Sprite QuestIconSprite => GetIcon(ref _questIconSprite, $"{nameof(MultiDelivery)}.assets.quest_icon.png");
 
     private static Sprite _questIconSprite;
     private static readonly Logger Logger = new("");
@@ -59,7 +59,7 @@ public class DeliveryProject : MelonMod
     private bool _networkManagerFailed;
 
     internal static MelonPreferences_Category Category =
-        MelonPreferences.CreateCategory($"{nameof(DeliveryProject)}Settings", $"{nameof(DeliveryProject)}'s Settings");
+        MelonPreferences.CreateCategory($"{nameof(MultiDelivery)}Settings", $"{nameof(MultiDelivery)}'s Settings");
 
     internal static MelonPreferences_Entry<bool> NetworkLogging =
         Category.CreateEntry("NetworkDebugLogs", false, "Enable Network Logs",
@@ -68,7 +68,7 @@ public class DeliveryProject : MelonMod
 
     public override void OnInitializeMelon()
     {
-        Logger.Msg("DeliveryProject initialized");
+        Logger.Msg("MultiDelivery initialized");
         MelonCoroutines.Start(InitializeNetworkManager());
     }
 
@@ -129,7 +129,7 @@ public class DeliveryProject : MelonMod
     public override void OnDeinitializeMelon()
     {
         _networkManager?.Dispose();
-        Logger.Msg("DeliveryProject deinitialized");
+        Logger.Msg("MultiDelivery deinitialized");
     }
 
     private void WirePlayerEvent(Player _)

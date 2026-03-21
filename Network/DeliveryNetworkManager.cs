@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using MelonLoader;
 using SteamNetworkLib;
-using DeliveryProject.Pool;
-using DeliveryProject.Builders;
-using DeliveryProject.Persistence;
+using MultiDelivery.Builders;
+using MultiDelivery.Persistence;
+using MultiDelivery.Pool;
 using UnityEngine;
 
 #if MONO
@@ -20,7 +20,7 @@ using Il2CppScheduleOne.Vehicles.Modification;
 using Guid = Il2CppSystem.Guid;
 #endif
 
-namespace DeliveryProject.Network;
+namespace MultiDelivery.Network;
 
 /// <summary>
 /// Manages network synchronization for the delivery vehicle pool system
@@ -31,7 +31,7 @@ public class DeliveryNetworkManager
     private SteamNetworkClient _client;
     private readonly Logger _logger;
 
-    private const string ModDataKey = "DeliveryProject_Version";
+    private const string ModDataKey = "MultiDelivery_Version";
     private const string ModVersion = "1.0.0";
 
     private bool IsInLobby => _client?.IsInLobby ?? false;

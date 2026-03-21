@@ -14,7 +14,7 @@ from pathlib import Path
 import zipfile
 from lxml import etree as ET
 
-MOD_NAME = "DeliveryProject"  # Will be replaced by template
+MOD_NAME = "MultiDelivery"  # Will be replaced by template
 MONO_BUILD = "Mono"
 IL2CPP_BUILD = "IL2CPP"
 

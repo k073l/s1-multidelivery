@@ -14,7 +14,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace DeliveryProject.Builders;
+namespace MultiDelivery.Builders;
 
 public class LandVehicleBuilder
 {

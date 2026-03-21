@@ -1,6 +1,6 @@
 ﻿using SteamNetworkLib.Models;
 
-namespace DeliveryProject.Network;
+namespace MultiDelivery.Network;
 
 /// <summary>
 /// Message sent when a new vehicle is added to the pool

@@ -9,7 +9,7 @@ using Guid = Il2CppSystem.Guid;
 #endif
 using UnityEngine;
 
-namespace DeliveryProject.Builders;
+namespace MultiDelivery.Builders;
 
 public class DeliveryVehicleBuilder
 {

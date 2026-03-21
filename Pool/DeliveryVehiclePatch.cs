@@ -7,7 +7,7 @@ using Il2CppScheduleOne.Delivery;
 using Il2CppScheduleOne.Vehicles;
 #endif
 
-namespace DeliveryProject.Pool;
+namespace MultiDelivery.Pool;
 
 [HarmonyPatch(typeof(DeliveryVehicle))]
 internal class DeliveryVehiclePatch

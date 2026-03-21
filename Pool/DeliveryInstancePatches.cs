@@ -1,5 +1,5 @@
-﻿using DeliveryProject.Network;
-using HarmonyLib;
+﻿using HarmonyLib;
+using MultiDelivery.Network;
 using UnityEngine;
 #if MONO
 using ScheduleOne;
@@ -13,7 +13,7 @@ using Il2CppScheduleOne.UI.Shop;
 using Console = Il2CppScheduleOne.Console;
 #endif
 
-namespace DeliveryProject.Pool;
+namespace MultiDelivery.Pool;
 
 [HarmonyPatch(typeof(DeliveryInstance))]
 internal static class DeliveryInstancePatches

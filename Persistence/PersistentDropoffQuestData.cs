@@ -1,7 +1,7 @@
 ﻿using S1API.Internal.Abstraction;
 using S1API.Saveables;
 
-namespace DeliveryProject.Persistence;
+namespace MultiDelivery.Persistence;
 
 public class PersistentDropoffQuestData: Saveable
 {

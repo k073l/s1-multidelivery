@@ -1,7 +1,7 @@
 ﻿using System.Collections;
-using DeliveryProject.Helpers;
-using DeliveryProject.Pool;
+using MultiDelivery.Helpers;
 using MelonLoader;
+using MultiDelivery.Pool;
 using S1API.Entities;
 using S1API.Entities.NPCs.Suburbia;
 using S1API.Quests;
@@ -10,7 +10,7 @@ using S1API.Saveables;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace DeliveryProject.Quest;
+namespace MultiDelivery.Quest;
 
 public class DropoffQuest : S1API.Quests.Quest
 {
@@ -22,7 +22,7 @@ public class DropoffQuest : S1API.Quests.Quest
 
     protected override bool AutoBegin => false;
 
-    protected override Sprite QuestIcon => DeliveryProject.QuestIconSprite;
+    protected override Sprite QuestIcon => MultiDelivery.QuestIconSprite;
 
     internal QuestState State => QuestState;
 
@@ -64,7 +64,7 @@ public class DropoffQuest : S1API.Quests.Quest
         {
             Logger.Debug("Adding add vehicle entry");
             _addVehicleEntry = AddEntry($"Purchase a " +
-                                        $"{DeliveryProject.RequestedVehicleCode.Capitalize()} " +
+                                        $"{MultiDelivery.RequestedVehicleCode.Capitalize()} " +
                                         $"and drive it into the green dropoff zone (top floor of the parking garage, next to storage unit)",
                 _dropoffZonePosition);
             _addVehicleEntry.Begin();

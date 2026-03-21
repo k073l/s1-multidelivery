@@ -1,6 +1,6 @@
 ﻿using MelonLoader;
 
-namespace DeliveryProject;
+namespace MultiDelivery;
 
 public class Logger(string categoryName, LogLevel? forceLevel = null)
 {
@@ -32,26 +32,26 @@ public class Logger(string categoryName, LogLevel? forceLevel = null)
         }
 
         var ns = string.IsNullOrWhiteSpace(categoryName)
-            ? nameof(DeliveryProject)
-            : $"{nameof(DeliveryProject)}.{categoryName}";
+            ? nameof(MultiDelivery)
+            : $"{nameof(MultiDelivery)}.{categoryName}";
         var prefix = $"[{ns}] {message}";
 
         switch (level)
         {
             case LogLevel.NetworkTrace:
-                if (DeliveryProject.NetworkLogging.Value) Melon<DeliveryProject>.Logger.Msg(prefix);
+                if (MultiDelivery.NetworkLogging.Value) Melon<MultiDelivery>.Logger.Msg(prefix);
                 break;
             case LogLevel.Debug:
                 MelonDebug.Msg(prefix);
                 break;
             case LogLevel.Info:
-                Melon<DeliveryProject>.Logger.Msg(prefix);
+                Melon<MultiDelivery>.Logger.Msg(prefix);
                 break;
             case LogLevel.Warn:
-                Melon<DeliveryProject>.Logger.Warning(prefix);
+                Melon<MultiDelivery>.Logger.Warning(prefix);
                 break;
             case LogLevel.Error:
-                Melon<DeliveryProject>.Logger.Error(prefix);
+                Melon<MultiDelivery>.Logger.Error(prefix);
                 break;
         }
     }

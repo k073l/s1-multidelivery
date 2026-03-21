@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using MelonLoader;
 
-namespace DeliveryProject.Helpers;
+namespace MultiDelivery.Helpers;
 
 public static class MelonLoggerExtensions
 {

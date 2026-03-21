@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace DeliveryProject.Quest;
+namespace MultiDelivery.Quest;
 
 public static class VehicleDropoffZoneFactory
 {

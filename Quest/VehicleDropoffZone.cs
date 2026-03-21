@@ -9,6 +9,7 @@ using ScheduleOne.Delivery;
 using ScheduleOne.DevUtilities;
 using ScheduleOne.Vehicles;
 #else
+using Il2CppInterop.Runtime.Attributes;
 using Il2CppScheduleOne.Delivery;
 using Il2CppScheduleOne.DevUtilities;
 using Il2CppScheduleOne.Vehicles;
@@ -199,6 +200,9 @@ public class VehicleDropoffZone : MonoBehaviour
         }
     }
 
+#if !MONO
+    [HideFromIl2Cpp]
+#endif
     public void SetQuest(DropoffQuest quest)
     {
         _quest = quest;

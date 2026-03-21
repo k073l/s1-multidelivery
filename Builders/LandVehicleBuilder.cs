@@ -22,7 +22,7 @@ public class LandVehicleBuilder
     private string _vehicleCode = "veeper";
     private EVehicleColor _color = EVehicleColor.Custom;
     private Guid _guid = GUIDManager.GenerateUniqueGUID();
-    private Transform _parent;
+    private static Transform? _parent;
 
     public LandVehicleBuilder WithVehicleName(string vehicleName)
     {
@@ -54,11 +54,19 @@ public class LandVehicleBuilder
         return this;
     }
 
+    public LandVehicleBuilder WithParent(Transform parent)
+    {
+        _parent = parent;
+        return this;
+    }
+
     public LandVehicle Build()
     {
         if (_parent == null)
         {
-            var rootGo = new GameObject("VehiclePool");
+            // try getting it first
+            var rootGo = GameObject.Find("VehiclePool");
+            if (rootGo == null) rootGo = new GameObject("VehiclePool");
             _parent = rootGo.transform;
         }
 

@@ -13,6 +13,8 @@ namespace MultiDelivery.Network;
 public static class NetworkConvenienceMethods
 {
     private static DeliveryNetworkManager? _networkManager;
+    
+    public static bool HostOrSingleplayer => _networkManager?.HostOrSingleplayer ?? true; // true if SteamNetworkLib unavailable
 
     public static void InitializeNetworking(DeliveryNetworkManager networkManager)
     {

@@ -120,7 +120,7 @@ public class MultiDelivery : MelonMod
         catch (Exception ex)
         {
             MelonLogger.Error(
-                $"Network manager update failed: {ex.Message}\n" +
+                $"Network manager update failed: {ex.Message}\n\n" +
                 $"You can ignore this error if you plan on playing singleplayer only and don't want to install SteamNetworkLib");
             _networkManagerFailed = true; // give up
         }
@@ -161,9 +161,10 @@ public class MultiDelivery : MelonMod
         var jeremy = NPC.Get<JeremyWilkinson>();
         if (jeremy == null) return;
 
-        jeremy.SendTextMessage(
-            "Your properties are getting busy. Want to handle more than one delivery at a time? I've got an idea. Stop by the dealership."
-        );
+        if (NetworkConvenienceMethods.HostOrSingleplayer)
+            jeremy.SendTextMessage(
+                "Your properties are getting busy. Want to handle more than one delivery at a time? I've got an idea. Stop by the dealership."
+            );
         PersistentDropoffQuestData.Instance.HasMessaged = true;
 
         DropoffQuestDialogue.Register();

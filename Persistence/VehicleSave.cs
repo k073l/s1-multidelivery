@@ -4,6 +4,7 @@ using MultiDelivery.Builders;
 using MultiDelivery.Pool;
 using S1API.Internal.Abstraction;
 using S1API.Saveables;
+using UnityEngine;
 #if MONO
 using ScheduleOne.Delivery;
 using ScheduleOne.PlayerScripts;
@@ -26,6 +27,7 @@ public class VehicleSave : Saveable
     public override SaveableLoadOrder LoadOrder => SaveableLoadOrder.BeforeBaseGame;
 
     private static readonly Logger Logger = new(nameof(VehicleSave));
+    private static Transform _parent;
     public static VehicleSave Instance { get; set; } = new();
 
     public VehicleSave()
@@ -48,6 +50,13 @@ public class VehicleSave : Saveable
     protected override void OnLoaded()
     {
         Melon<MultiDelivery>.Logger.Msg($"VehicleSave.OnLoaded: Loading {_dtos.Count} vehicles");
+        if (_parent == null)
+        {
+            // try getting it first
+            var rootGo = GameObject.Find("VehiclePool");
+            if (rootGo == null) rootGo = new GameObject("VehiclePool");
+            _parent = rootGo.transform;
+        }
 
         for (var i = 0; i < _dtos.Count; ++i)
         {
@@ -59,6 +68,7 @@ public class VehicleSave : Saveable
                 .WithVehicleName($"Additional Delivery Vehicle {i + 1}")
                 .WithGuid(guid)
                 .WithColor(_dtos[i].Color)
+                .WithParent(_parent)
                 .Build();
 
             // Color is not properly applied if we load before base game

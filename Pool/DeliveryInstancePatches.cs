@@ -25,7 +25,7 @@ internal static class DeliveryInstancePatches
         Console.Log($"Setting delivery status to {status} for delivery {__instance.DeliveryID}");
         __instance.Status = status;
         var shopInterface = DeliveryManager.Instance.GetShopInterface(__instance.StoreName);
-        
+
         switch (status)
         {
             case EDeliveryStatus.Arrived:
@@ -39,15 +39,16 @@ internal static class DeliveryInstancePatches
                     // Use the base vehicle (first delivery for this shop)
                     __instance.ActiveVehicle = shopInterface.DeliveryVehicle;
                 }
+
                 __instance.ActiveVehicle.Activate(__instance);
                 break;
-                
+
             case EDeliveryStatus.Completed:
                 // Free allocations and notify network
                 if (__instance.ActiveVehicle == shopInterface.DeliveryVehicle)
                 {
                     PoolManager.Instance.BaseVehicleAllocationsForShop[__instance.StoreName] = false;
-                    
+
                     // Notify network of base allocation freed
                     NetworkConvenienceMethods.NotifyBaseAllocation(__instance.StoreName, false);
                 }
@@ -55,13 +56,14 @@ internal static class DeliveryInstancePatches
                 {
                     PoolManager.Instance.FreeAllocation(__instance.DeliveryID);
                 }
-                
-                if (__instance.ActiveVehicle != null) 
+
+                if (__instance.ActiveVehicle != null)
                     __instance.ActiveVehicle.Deactivate();
-                    
+
                 __instance.onDeliveryCompleted?.Invoke();
                 break;
         }
+
         return false;
     }
 
@@ -70,22 +72,18 @@ internal static class DeliveryInstancePatches
     private static bool UsePoolAddItemsToDeliveryVehicle(DeliveryInstance __instance)
     {
         var shopInterface = DeliveryManager.Instance.GetShopInterface(__instance.StoreName);
-    
-        // Same logic as patch above
         DeliveryVehicle deliveryVehicle;
-    
-        // Check if this delivery has a pool vehicle allocated
+
         if (PoolManager.Instance.Allocations.TryGetValue(__instance.DeliveryID, out deliveryVehicle))
         {
-            // Use allocated pool vehicle
         }
         else
         {
-            // Use base vehicle (first delivery)
-            deliveryVehicle = shopInterface.DeliveryVehicle;
+            deliveryVehicle = shopInterface?.DeliveryVehicle;
         }
-    
+
         var items = __instance.Items;
+
         foreach (var pair in items)
         {
             var item = Registry.GetItem(pair.String);
@@ -94,10 +92,11 @@ internal static class DeliveryInstancePatches
             {
                 var clampedCount = Mathf.Min(count, item.StackLimit);
                 count -= clampedCount;
-                var defaultInstance = Registry.GetItem(pair.String).GetDefaultInstance(clampedCount);
-                deliveryVehicle.Vehicle.Storage.InsertItem(defaultInstance);
+                var defaultInstance = item.GetDefaultInstance(clampedCount);
+                deliveryVehicle.Vehicle.Storage.InsertItem(defaultInstance, item);
             }
         }
+
         return false;
     }
 }

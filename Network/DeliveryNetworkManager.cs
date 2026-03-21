@@ -38,6 +38,8 @@ public class DeliveryNetworkManager
     private bool IsHost => _client?.IsHost ?? false;
     private bool IsSingleplayer => !IsInLobby;
 
+    internal bool HostOrSingleplayer => IsHost || IsSingleplayer;
+
     public DeliveryNetworkManager()
     {
         _logger = new Logger("Network", LogLevel.NetworkTrace);

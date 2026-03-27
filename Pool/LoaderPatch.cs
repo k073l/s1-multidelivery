@@ -54,11 +54,7 @@ internal static class LoaderPatch
 
             if (deliveriesData != null && deliveriesData.ActiveDeliveries != null)
             {
-                DeliveryInstance[] activeDeliveries = deliveriesData.ActiveDeliveries;
-                foreach (var delivery in activeDeliveries)
-                {
-                    NetworkSingleton<DeliveryManager>.Instance.SendDelivery(delivery);
-                }
+                DeliveryManager.Instance.Load(deliveriesData);
 
                 if (deliveriesData.DeliveryVehicles != null)
                 {
@@ -68,15 +64,6 @@ internal static class LoaderPatch
                     {
                         LoadVehicle(data, mainPath);
                     }
-                }
-            }
-
-            if (deliveriesData != null && deliveriesData.DeliveryHistory != null)
-            {
-                DeliveryReceipt[] deliveryHistory = deliveriesData.DeliveryHistory;
-                foreach (var receipt in deliveryHistory)
-                {
-                    NetworkSingleton<DeliveryManager>.Instance.RecordDeliveryReceipt_Server(receipt);
                 }
             }
         }

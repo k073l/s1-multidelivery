@@ -34,7 +34,7 @@
     <ItemGroup Label="IL2CPP-Refs" Condition="'$(IsMono)' != 'true'">
         <PackageReference Include="RefGen.Schedule-I.Il2Cpp" Version="0.4.5-f1" />
         <Reference Include="SteamNetworkLib">
-            <HintPath>C:\Games\Schedule I\S1-files\Schedule I IL2CPP\UserLibs\SteamNetworkLib-Il2Cpp.dll</HintPath>
+            <HintPath>build/lib/SteamNetworkLib-IL2Cpp.dll</HintPath>
         </Reference>
         <PackageReference Include="Il2CppInterop.Common" Version="1.5.1"/>
         <PackageReference Include="Il2CppInterop.Runtime" Version="1.5.1"/>
@@ -42,7 +42,7 @@
     <ItemGroup Label="Mono-Refs" Condition="'$(IsMono)' == 'true'">
         <PackageReference Include="RefGen.Schedule-I.Mono" Version="0.4.5-f1" />
         <Reference Include="SteamNetworkLib">
-            <HintPath>C:\Games\Schedule I\S1-files\Schedule I Mono\UserLibs\SteamNetworkLib-Mono.dll</HintPath>
+            <HintPath>build/lib/SteamNetworkLib-Mono.dll</HintPath>
         </Reference>
     </ItemGroup>
 
@@ -62,10 +62,6 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <Publicize Include="Assembly-CSharp"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="assets\screenshots\" />
     </ItemGroup>
     
     <!-- MelonLoader References -->

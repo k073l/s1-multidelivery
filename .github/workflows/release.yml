@@ -61,7 +61,7 @@ jobs:
           dotnet-version: '8.0.x'
           source-url: ${{ vars.NUGET_SOURCE_URL }}
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_READ_TOKEN }}
 
       - name: Remove post-build target
         run: find . -type f -name "*.csproj" -exec sed -i '/<Import Project="build.events.postBuild.targets"/d' {} \;

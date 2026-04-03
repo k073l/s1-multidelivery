@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using MelonLoader;
+using MultiDelivery.Helpers;
 using UnityEngine;
 #if MONO
 using ScheduleOne.Delivery;
@@ -54,7 +55,7 @@ internal static class LoaderPatch
 
             if (deliveriesData != null && deliveriesData.ActiveDeliveries != null)
             {
-                DeliveryManager.Instance.Load(deliveriesData);
+                LoadDelivery(deliveriesData);
 
                 if (deliveriesData.DeliveryVehicles != null)
                 {
@@ -149,6 +150,32 @@ internal static class LoaderPatch
         {
             Logger.Error("Exception thrown while loading saved graffities", e);
             // ignore
+        }
+    }
+    
+    private static void LoadDelivery(DeliveriesData data)
+    {
+        if (data == null)
+        {
+            return;
+        }
+        if (data.ActiveDeliveries != null)
+        {
+            DeliveryInstance[] activeDeliveries = data.ActiveDeliveries;
+            foreach (var delivery in activeDeliveries)
+            {
+                DeliveryManager.Instance.SendDelivery(delivery);
+            }
+        }
+        if (data.DeliveryHistory != null)
+        {
+            foreach (var delivery in data.DeliveryHistory)
+                DeliveryManager.Instance._deliveryHistory.Add(delivery);
+        }
+        if (data.DisplayedDeliveryHistory != null)
+        {
+            foreach (var delivery in data.DisplayedDeliveryHistory)
+                DeliveryManager.Instance._displayedDeliveryHistory.Add(delivery);
         }
     }
 }

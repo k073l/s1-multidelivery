@@ -15,6 +15,8 @@ Expand your delivery capacity - order multiple deliveries from the same store si
     - **Note:** If you're already Enforcer 1+, gain any XP to trigger the intro message
 - **Experimental multiplayer support** - vehicle pool is shared across the lobby (requires SteamNetworkLib)
 
+Note: May not be compatible with other delivery-adjacent mods.
+
 ## Screenshots
 
 ![Multiple delivery vans, some custom](https://raw.githubusercontent.com/k073l/s1-multidelivery/master/assets/screenshots/multiple-deliveries-world.png)
@@ -34,6 +36,16 @@ Expand your delivery capacity - order multiple deliveries from the same store si
    - For [none/beta](https://thunderstore.io/c/schedule-i/p/ifBars/SteamNetworkLib_Il2Cpp/)
    - For [alternate/alternate beta](https://thunderstore.io/c/schedule-i/p/ifBars/SteamNetworkLib_Mono/)
 6. Launch the game
+
+## Uninstallation
+1. Remove the mod's dll from Mods
+2. Optionally, if other mods aren't using MultiDelivery's dependencies remove them as well
+3. If you have saved deliveries (deliveries that weren't completed when the save happened) remove them as well
+    - Navigate to your save folder and remove `Deliveries.json` to remove all delivery data - saved deliveries, receipts, history (make a backup!)
+
+## Known Issues
+- Pool vehicles don't load in correctly on second and subsequent save loads - if you start a game, enter a save, exit to menu and enter the save again, the vehicles will not load correctly. This can be fixed by quitting the game, since first load into a given save works correctly or by loading into a different save and then back to the original one.
+- Graffiti on pool vehicles isn't saved to a save file. Arrived deliveries (vehicles that are waiting on the loading docks) will persist their graffiti though.
 
 ## License
 This mod is licensed under MIT License. See the LICENSE.md file for more information.

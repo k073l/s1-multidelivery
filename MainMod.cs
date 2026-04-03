@@ -26,7 +26,7 @@ using Il2CppSteamworks;
     MultiDelivery.BuildInfo.Version,
     MultiDelivery.BuildInfo.Author
 )]
-[assembly: MelonColor(1, 255, 0, 0)]
+[assembly: MelonColor(1, 0, 255, 0)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 // Specify platform domain based on build target (remove this if your mod supports both via S1API)

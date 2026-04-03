@@ -43,7 +43,7 @@ public static class BuildInfo
     public const string Name = "MultiDelivery";
     public const string Description = "Add vehicles, order multiple deliveries from the same place!";
     public const string Author = "k073l";
-    public const string Version = "1.0.0";
+    public const string Version = "1.0.1";
 }
 
 public class MultiDelivery : MelonMod
@@ -135,18 +135,18 @@ public class MultiDelivery : MelonMod
     private void WirePlayerEvent(Player _)
     {
         Logger.Debug("Player loaded event called");
-        if (PersistentDropoffQuestData.Instance.HasMessaged)
-        {
-            DropoffQuestDialogue.Register();
-            return;
-        }
-
         MelonCoroutines.Start(WireOnXpChangedDelayed());
     }
 
     private IEnumerator WireOnXpChangedDelayed()
     {
         yield return new WaitUntil((Func<bool>)(() => LevelManager.Exists));
+        // Checking after LevelManager exist to delay it enough so saveable exists
+        if (PersistentDropoffQuestData.Instance.HasMessaged)
+        {
+            DropoffQuestDialogue.Register();
+            yield break;
+        }
         Logger.Debug("Wiring on xp changed");
         LevelManager.OnXPChanged += SendMessageIfRequiredRank;
     }
@@ -155,7 +155,12 @@ public class MultiDelivery : MelonMod
     {
         Logger.Debug($"Current rank {current}, required: {RequiredRank}");
 
-        if (PersistentDropoffQuestData.Instance.HasMessaged) return;
+        if (PersistentDropoffQuestData.Instance.HasMessaged)
+        {
+            MelonDebug.Msg("Xp changed wired, but already messaged - registering dialogue now.");
+            DropoffQuestDialogue.Register();
+            return;
+        }
         if (current < RequiredRank) return;
 
         var jeremy = NPC.Get<JeremyWilkinson>();

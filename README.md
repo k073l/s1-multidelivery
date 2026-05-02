@@ -33,7 +33,7 @@ Note: May not be compatible with other delivery-adjacent mods.
 3. Place the dll file into the Mods directory for your branch
     - For none/beta use IL2CPP
     - For alternate/alternate beta use Mono
-4. Install S1API
+4. Install S1API (Forked)
 5. Install SteamNetworkLib (optional, for multiplayer)
    - For [none/beta](https://thunderstore.io/c/schedule-i/p/ifBars/SteamNetworkLib_Il2Cpp/)
    - For [alternate/alternate beta](https://thunderstore.io/c/schedule-i/p/ifBars/SteamNetworkLib_Mono/)

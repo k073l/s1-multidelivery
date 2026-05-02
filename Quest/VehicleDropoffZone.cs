@@ -102,6 +102,15 @@ public class VehicleDropoffZone : MonoBehaviour
         vehicle.SetIsPlayerOwned(null, false);
         vehicle.SetVisible(false);
         vehicle.IsPhysicallySimulated = false;
+        // try remove from player owned list
+        var newVehicles = VehicleManager.Instance.PlayerOwnedVehicles.AsEnumerable()
+            .Where(lv => lv.GUID.ToString() != vehicle.GUID.ToString());
+        VehicleManager.Instance.PlayerOwnedVehicles = newVehicles
+#if MONO
+            .ToList();
+#else
+            .ToIl2CppList();
+#endif
 
         vehicle.transform.position = new Vector3(0f, -100f, 0f);
 

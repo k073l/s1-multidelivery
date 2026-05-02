@@ -103,7 +103,7 @@ public class DropoffQuest : S1API.Quests.Quest
             {
                 npc.SendTextMessage(
                     $"Vehicle added, you now can order {PoolManager.Instance.Pool.Count} more " +
-                    $"deliver{(PoolManager.Instance.Pool.Count > 1 ? "y" : "ies")} " +
+                    $"deliver{(PoolManager.Instance.Pool.Count > 1 ? "ies" : "y")} " +
                     $"from stores.");
                 npc.SendTextMessage("If you want to add more, you know where to find me.");
             }

@@ -81,7 +81,7 @@ public class VehicleDropoffZone : MonoBehaviour
 
     private static bool IsCorrectVehicleType(LandVehicle vehicle)
     {
-        return vehicle.vehicleCode == MultiDelivery.RequestedVehicleCode;
+        return vehicle.vehicleCode == QuestSetupManager.RequestedVehicleCode;
     }
 
     private void ProcessAndAddToPool(LandVehicle vehicle)

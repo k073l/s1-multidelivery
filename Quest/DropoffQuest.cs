@@ -22,7 +22,7 @@ public class DropoffQuest : S1API.Quests.Quest
 
     protected override bool AutoBegin => false;
 
-    protected override Sprite QuestIcon => MultiDelivery.QuestIconSprite;
+    protected override Sprite QuestIcon => IconLoader.QuestIconSprite;
 
     internal QuestState State => QuestState;
 
@@ -64,7 +64,7 @@ public class DropoffQuest : S1API.Quests.Quest
         {
             Logger.Debug("Adding add vehicle entry");
             _addVehicleEntry = AddEntry($"Purchase a " +
-                                        $"{MultiDelivery.RequestedVehicleCode.Capitalize()} " +
+                                        $"{QuestSetupManager.RequestedVehicleCode.Capitalize()} " +
                                         $"and drive it into the green dropoff zone (top floor of the parking garage, next to storage unit)",
                 _dropoffZonePosition);
             _addVehicleEntry.Begin();

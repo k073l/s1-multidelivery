@@ -190,6 +190,18 @@ public static class Utils
         return results;
     }
 
+    public static List<Transform> FindAllTransforms(this Transform transform, string name)
+    {
+        List<Transform> result = [];
+        for (var i = 0; i < transform.childCount; i++)
+        {
+            var child = transform.GetChild(i);
+            if (child.name == name) result.Add(child);
+        }
+
+        return result;
+    }
+
     /// <summary>
     /// Checks if the given object is of type <typeparamref name="T"/> and casts it to that type.
     /// </summary>

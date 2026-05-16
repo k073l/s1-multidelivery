@@ -12,6 +12,8 @@ namespace MultiDelivery.Quest;
 public class QuestSetupManager
 {
     internal const string RequestedVehicleCode = "veeper";
+    internal const string QuestStartMessage =
+        "Your properties are getting busy. Want to handle more than one delivery at a time? I've got an idea. Stop by the dealership.";
     private static FullRank RequiredRank = new(Rank.Enforcer, 1);
     private static readonly Logger Logger = new(nameof(QuestSetupManager));
     
@@ -64,9 +66,7 @@ public class QuestSetupManager
         if (jeremy == null) return;
 
         if (NetworkConvenienceMethods.HostOrSingleplayer)
-            jeremy.SendTextMessage(
-                "Your properties are getting busy. Want to handle more than one delivery at a time? I've got an idea. Stop by the dealership."
-            );
+            jeremy.SendTextMessage(QuestStartMessage);
         PersistentDropoffQuestData.Instance.HasMessaged = true;
 
         DropoffQuestDialogue.Register();

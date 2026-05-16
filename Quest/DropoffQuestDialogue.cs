@@ -145,7 +145,7 @@ public class DropoffQuestDialogue
         Logger.Msg("Registered delivery expansion dialogue");
     }
 
-    private static void OnAcceptQuest()
+    internal static void OnAcceptQuest()
     {
         var quest = QuestManager.GetQuestByName(DropoffQuest.Name) as DropoffQuest;
 

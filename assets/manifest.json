@@ -1,6 +1,6 @@
 {
     "name": "MultiDelivery",
-    "version_number": "1.0.2",
+    "version_number": "1.0.3",
     "website_url": "https://github.com/k073l/s1-multidelivery",
     "description": "Add vehicles, order multiple deliveries from the same place!",
     "dependencies": [

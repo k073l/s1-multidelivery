@@ -34,7 +34,7 @@ public static class BuildInfo
     public const string Name = "MultiDelivery";
     public const string Description = "Add vehicles, order multiple deliveries from the same place!";
     public const string Author = "k073l";
-    public const string Version = "1.0.2";
+    public const string Version = "1.0.3";
 }
 
 public class MultiDelivery : MelonMod

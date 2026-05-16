@@ -15,11 +15,7 @@ public class RootCommand: BaseConsoleCommand
     
     public override void ExecuteCommand(List<string> args)
     {
-        _rootNode.Execute(new CommandContext
-        {
-            Args = args,
-            Name = _rootNode.Name
-        });
+        _rootNode.Execute(new CommandContext(CommandWord, args));
     }
 
     public override string CommandWord => "multidelivery";

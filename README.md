@@ -45,6 +45,24 @@ Note: May not be compatible with other delivery-adjacent mods.
 3. If you have saved deliveries (deliveries that weren't completed when the save happened) remove them as well
     - Navigate to your save folder and remove `Deliveries.json` to remove all delivery data - saved deliveries, receipts, history (make a backup!)
 
+## Troubleshooting
+1. Make sure you have the correct version of the mod for your branch (IL2CPP for none/beta, Mono for alternate/alternate beta)
+2. Make sure you have the required dependencies 
+   - S1API Forked (min version 3.0.1, latest recommended)
+   - optionally SteamNetworkLib for multiplayer
+3. Check the Known Issues section to see if your issue is a known one - if so, follow the recommended workaround if available
+4. Check the MelonLoader logs if the mod loaded correctly, if dependencies were found, and for any errors
+   - Standard log file location: `<game folder>/MelonLoader/Latest.log`
+5. If issues persist, try disabling other mods to check for compatibility issues, as well as reporting the issue with as much detail as possible (steps to reproduce, expected vs actual behavior, logs, etc.)
+
+### Testing/Debugging Commands
+- `multidelivery help` - lists available commands and their usage
+- `multidelivery quest force` - forces the pool expansion quest intro message, skipping the rank requirement check
+- `multidelivery quest start` - starts the pool expansion quest without talking to the NPC
+- `multidelivery pool add <number>` - adds the specified number of vehicles to the pool
+- `multidelivery pool set <number>` - sets the pool size to the specified number. Lowering the pool size will delete vehicles, including in-use ones. Use with caution. Downsizing is also not networked.
+- `multidelivery pool get` - prints the current pool size and number of vehicles currently in use
+
 ## Known Issues
 - Pool vehicles don't load in correctly on second and subsequent save loads - if you start a game, enter a save, exit to menu and enter the save again, the vehicles will not load correctly. This can be fixed by quitting the game, since first load into a given save works correctly or by loading into a different save and then back to the original one.
 - Graffiti on pool vehicles isn't saved to a save file. Arrived deliveries (vehicles that are waiting on the loading docks) will persist their graffiti though.

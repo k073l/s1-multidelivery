@@ -4,13 +4,30 @@ namespace MultiDelivery.GameConsole.Core;
 
 public class CommandContext
 {
-    private MelonLogger.Instance _logger;
-    public List<string> Args { get; set; } = [];
-    public string Name { get; set; }
+    private readonly MelonLogger.Instance _logger;
 
-    public CommandContext()
+    public IReadOnlyList<string> Args { get; }
+
+    public string Path { get; }
+
+    public CommandContext(
+        string path,
+        IReadOnlyList<string> args)
     {
-        _logger = new MelonLogger.Instance($"{nameof(MultiDelivery)}.Console.{Name}");
+        Path = path;
+        Args = args;
+
+        _logger = new MelonLogger.Instance(
+            $"{nameof(MultiDelivery)}.Console.{Path}");
+    }
+
+    public CommandContext CreateChild(
+        string childName,
+        IReadOnlyList<string> args)
+    {
+        return new CommandContext(
+            $"{Path}.{childName}",
+            args);
     }
 
     public void Reply(string message)

@@ -16,6 +16,6 @@ public class RootNode : CompositeCommand
     {
         Register(new HelpCommand(this));
         Register(new QuestCommand());
-        // Register(new PoolCommand());
+        Register(new PoolCommand());
     }
 }

@@ -13,5 +13,6 @@ public class PoolCommand : CompositeCommand
     {
         Register(new PoolAddCommand());
         Register(new PoolSetCommand());
+        Register(new PoolGetCommand());
     }
 }

@@ -30,11 +30,11 @@ public abstract class CompositeCommand : ICommandNode
 
         var remaining = context.Args.Skip(1).ToList();
 
-        command.Execute(new CommandContext
-        {
-            Args = remaining,
-            Name = command.Name
-        });
+        var childContext = context.CreateChild(
+            command.Name,
+            remaining);
+
+        command.Execute(childContext);
     }
 
     protected void PrintHelp(CommandContext context)

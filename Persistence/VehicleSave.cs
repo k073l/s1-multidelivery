@@ -47,6 +47,11 @@ public class VehicleSave : Saveable
         _dtos.Add(dto);
     }
 
+    internal void RemoveVehicle(DeliveryVehicle vehicle)
+    {
+        _dtos.RemoveAll(dto => dto.Guid.ToString() == vehicle.GUID.ToString());
+    }
+
     protected override void OnLoaded()
     {
         Melon<MultiDelivery>.Logger.Msg($"VehicleSave.OnLoaded: Loading {_dtos.Count} vehicles");

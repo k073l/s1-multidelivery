@@ -45,12 +45,20 @@ internal static class CapacityText
         if (spacer != null) spacer.gameObject.SetActive(false);
     }
 
-    [HarmonyPatch(nameof(DeliveryShop.FixedUpdate))]
+    [HarmonyPatch(nameof(DeliveryShop.RefreshCart))]
     [HarmonyPostfix]
     private static void UpdateCapacityTextPostfix(DeliveryShop __instance)
     {
-        if (!__instance.IsOpen || !DeliveryApp.Instance.isOpen) return;
-        if (!_capacityTexts.TryGetValue(__instance, out var text)) return;
+        if (!DeliveryApp.Instance.isOpen)
+        {
+            Logger.Debug($"Delivery app is not open, skipping capacity text update for {__instance.name}");
+            return;
+        }
+        if (!_capacityTexts.TryGetValue(__instance, out var text))
+        {
+            Logger.Debug($"Capacity text for {__instance.name} not found!");
+            return;
+        }
         var (available, total) = GetVehiclesForShop(__instance);
         text.text = $"{available}/{total}";
     }

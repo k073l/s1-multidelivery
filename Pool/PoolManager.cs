@@ -19,6 +19,7 @@ public class PoolManager
     public HashSet<DeliveryVehicle> Pool { get; } = [];
     internal Dictionary<string, DeliveryVehicle> Allocations { get; } = new();
     internal Dictionary<string, bool> BaseVehicleAllocationsForShop { get; } = new();
+    internal Dictionary<string, CustomAllocation> CustomAllocations = new();
 
     public void AddToPool(DeliveryVehicle deliveryVehicle, bool notify = true)
     {
@@ -48,7 +49,7 @@ public class PoolManager
         return free;
     }
 
-    public DeliveryVehicle GetOrAllocateFirstFree(string deliveryId)
+    public DeliveryVehicle GetOrAllocateFirstFree(string deliveryId, string shopName)
     {
         Logger.Debug($"GetOrAllocateFirstFree called for: {deliveryId}");
 
@@ -72,10 +73,11 @@ public class PoolManager
         }
 
         Allocations.Add(deliveryId, free);
+        CustomAllocations.Add(deliveryId, new CustomAllocation { Vehicle = free, ShopName = shopName });
         Logger.Debug($"Allocated new vehicle for {deliveryId}, vehicle: {free.GUID}");
 
         // Notify network of allocation
-        NetworkConvenienceMethods.NotifyAllocation(deliveryId, free, isAllocated: true);
+        NetworkConvenienceMethods.NotifyAllocation(deliveryId, shopName, free, isAllocated: true);
 
         return free;
     }
@@ -87,9 +89,39 @@ public class PoolManager
         if (Allocations.TryGetValue(deliveryId, out var deliveryVehicle))
         {
             Allocations.Remove(deliveryId);
+            if (!CustomAllocations.TryGetValue(deliveryId, out var customAllocation))
+            {
+                Logger.Debug($"No allocation found for {deliveryId}");
+                return;
+            }
+            var shopName = customAllocation.ShopName;
+            CustomAllocations.Remove(deliveryId);
 
             // Notify network of deallocation
-            NetworkConvenienceMethods.NotifyAllocation(deliveryId, deliveryVehicle, isAllocated: false);
+            NetworkConvenienceMethods.NotifyAllocation(deliveryId, shopName, deliveryVehicle, isAllocated: false);
         }
     }
+
+    public List<DeliveryVehicle> GetAllocationsForShop(string shopName)
+    {
+        List<DeliveryVehicle> allocationsForShop = new();
+        if (BaseVehicleAllocationsForShop.TryGetValue(shopName, out var allocations) && allocations)
+        {
+            var vehicle = DeliveryManager.Instance.GetShopInterface(shopName)?.DeliveryVehicle;
+            if (vehicle != null) allocationsForShop.Add(vehicle);
+        }
+
+        foreach (var customAlloc in CustomAllocations.Values)
+        {
+            if (customAlloc.ShopName != shopName) continue;
+            allocationsForShop.Add(customAlloc.Vehicle);
+        }
+        return allocationsForShop;
+    }
+}
+
+public record CustomAllocation
+{
+    public DeliveryVehicle Vehicle;
+    public string ShopName;
 }

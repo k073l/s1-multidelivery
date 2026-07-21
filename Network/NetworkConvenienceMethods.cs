@@ -31,10 +31,10 @@ public static class NetworkConvenienceMethods
         _networkManager?.BroadcastVehicleCreated(vehicle);
     }
 
-    public static void NotifyAllocation(string deliveryId, DeliveryVehicle vehicle,
+    public static void NotifyAllocation(string deliveryId, string storeName, DeliveryVehicle vehicle,
         bool isAllocated)
     {
-        _networkManager?.BroadcastVehicleAllocation(deliveryId, vehicle, isAllocated);
+        _networkManager?.BroadcastVehicleAllocation(deliveryId, storeName, vehicle, isAllocated);
     }
 
     public static void NotifyBaseAllocation(string shopName, bool isAllocated)

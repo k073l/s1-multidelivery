@@ -137,13 +137,14 @@ public class DeliveryNetworkManager
         await _client.BroadcastMessageAsync(message);
     }
 
-    public async void BroadcastVehicleAllocation(string deliveryId, DeliveryVehicle vehicle, bool isAllocated)
+    public async void BroadcastVehicleAllocation(string deliveryId, string storeName, DeliveryVehicle vehicle, bool isAllocated)
     {
         if (IsSingleplayer) return;
 
         var message = new VehicleAllocationMessage
         {
             DeliveryId = deliveryId,
+            StoreName = storeName,
             VehicleGuid = vehicle.GUID,
             IsAllocated = isAllocated
         };
@@ -369,12 +370,18 @@ public class DeliveryNetworkManager
                     {
                         _logger.Msg($"Allocating {message.VehicleGuid} for delivery {message.DeliveryId}");
                         PoolManager.Instance.Allocations.Add(message.DeliveryId, vehicle);
+                        PoolManager.Instance.CustomAllocations.Add(message.DeliveryId, new CustomAllocation()
+                        {
+                            ShopName = message.StoreName,
+                            Vehicle = vehicle
+                        });
                     }
                 }
                 else
                 {
                     _logger.Msg($"Deallocating {message.VehicleGuid} for delivery {message.DeliveryId}");
                     PoolManager.Instance.Allocations.Remove(message.DeliveryId);
+                    PoolManager.Instance.CustomAllocations.Remove(message.DeliveryId);
                 }
             }
             catch (Exception ex)

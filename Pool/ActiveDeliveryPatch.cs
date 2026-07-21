@@ -65,7 +65,8 @@ internal static class ActiveDeliveryPatch
             return;
         }
 
-        PoolManager.Instance.GetOrAllocateFirstFree(delivery.DeliveryID);
+        var vehicle = PoolManager.Instance.GetOrAllocateFirstFree(delivery.DeliveryID, delivery.StoreName);
+        
         Logger.Debug($"Allocated for {delivery.DeliveryID}");
     }
 }

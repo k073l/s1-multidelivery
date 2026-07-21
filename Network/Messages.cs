@@ -148,13 +148,14 @@ public class VehicleAllocationMessage : P2PMessage
     public override string MessageType => "VehicleAllocation";
 
     public string DeliveryId { get; set; }
+    public string StoreName { get; set; }
     public string VehicleGuid { get; set; }
     public bool IsAllocated { get; set; }
 
     public override byte[] Serialize()
     {
         var json = CreateJsonBase(
-            $"\"DeliveryId\":\"{DeliveryId}\",\"VehicleGuid\":\"{VehicleGuid}\",\"IsAllocated\":{IsAllocated.ToString().ToLower()}");
+            $"\"DeliveryId\":\"{DeliveryId}\",\"StoreName\":\"{StoreName}\",\"VehicleGuid\":\"{VehicleGuid}\",\"IsAllocated\":{IsAllocated.ToString().ToLower()}");
         return System.Text.Encoding.UTF8.GetBytes(json);
     }
 
@@ -163,6 +164,7 @@ public class VehicleAllocationMessage : P2PMessage
         var json = System.Text.Encoding.UTF8.GetString(data);
         ParseJsonBase(json);
         DeliveryId = ExtractJsonValue(json, "DeliveryId");
+        StoreName = ExtractJsonValue(json, "StoreName");
         VehicleGuid = ExtractJsonValue(json, "VehicleGuid");
         IsAllocated = bool.Parse(ExtractJsonValue(json, "IsAllocated"));
     }

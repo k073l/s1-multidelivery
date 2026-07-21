@@ -1,5 +1,6 @@
 using System.Collections;
 using MelonLoader;
+using MultiDelivery.Compatibility;
 using MultiDelivery.Helpers;
 using MultiDelivery.Network;
 using MultiDelivery.Pool;
@@ -55,6 +56,7 @@ public class MultiDelivery : MelonMod
     {
         Logger.Msg("MultiDelivery initialized");
         DependenciesChecker.PrintMissing();
+        AutoReorder.ApplyPatches();
         MelonCoroutines.Start(InitializeNetworkManager());
     }
 

@@ -39,7 +39,7 @@ public class DropoffQuest : S1API.Quests.Quest
     protected override void OnCreated()
     {
         base.OnCreated();
-        _startingCapacity = PoolManager.Instance.Pool.Count;
+        _startingCapacity = PoolManager.Instance.PoolCount;
         Logger.Debug($"Starting Quest with {_startingCapacity} capacity");
         var vec1 = new Vector3(5.10f, 4.2f, 82.58f);
         var vec2 = new Vector3(0.55f, 4.2f, 76.56f);
@@ -89,7 +89,7 @@ public class DropoffQuest : S1API.Quests.Quest
     {
         for (var i = 0; i < 3; ++i)
         {
-            if (PoolManager.Instance.Pool.Count > _startingCapacity) break;
+            if (PoolManager.Instance.PoolCount > _startingCapacity) break;
             yield return new WaitForSeconds(3f);
         }
 
@@ -97,13 +97,13 @@ public class DropoffQuest : S1API.Quests.Quest
         var npc = NPC.Get<JeremyWilkinson>();
         if (npc != null)
         {
-            if (PoolManager.Instance.Pool.Count <= _startingCapacity)
+            if (PoolManager.Instance.PoolCount <= _startingCapacity)
                 npc.SendTextMessage("Something went wrong... Vehicle got in a car crash :(");
             else
             {
                 npc.SendTextMessage(
-                    $"Vehicle added, you now can order {PoolManager.Instance.Pool.Count} more " +
-                    $"deliver{(PoolManager.Instance.Pool.Count > 1 ? "ies" : "y")} " +
+                    $"Vehicle added, you now can order {PoolManager.Instance.PoolCount} more " +
+                    $"deliver{(PoolManager.Instance.PoolCount > 1 ? "ies" : "y")} " +
                     $"from stores.");
                 npc.SendTextMessage("If you want to add more, you know where to find me.");
             }

@@ -51,6 +51,7 @@ internal static class LoaderPatch
             catch (Exception ex)
             {
                 Debug.LogError("Error loading data: " + ex.Message);
+                Logger.Debug("Error loading data: " + ex.Message);
             }
 
             if (deliveriesData != null && deliveriesData.ActiveDeliveries != null)
@@ -86,7 +87,11 @@ internal static class LoaderPatch
     private static void LoadVehicle(VehicleData data, string path)
     {
         Logger.Debug($"Processing GUID {data.GUID}");
-        var veh = PoolManager.Instance.Pool.FirstOrDefault(dv => dv.Vehicle.GUID.ToString() == data.GUID)?.Vehicle;
+        LandVehicle? veh;
+        lock (PoolManager.Lock)
+        {
+            veh = PoolManager.Instance.Pool.FirstOrDefault(dv => dv.Vehicle.GUID.ToString() == data.GUID)?.Vehicle;
+        }
         if (veh == null)
         {
             Logger.Debug($"GUID {data.GUID} not found in Pool, lookup via GUIDManager");

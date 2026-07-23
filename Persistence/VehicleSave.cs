@@ -90,11 +90,11 @@ public class VehicleSave : Saveable
 
             PoolManager.Instance.AddToPool(deliveryVehicle);
 
-            Logger.Debug($"Added to pool. Pool count now: {PoolManager.Instance.Pool.Count}");
+            Logger.Debug($"Added to pool. Pool count now: {PoolManager.Instance.PoolCount}");
         }
 
         Logger.Msg(
-            $"VehicleSave.OnLoaded complete. Final pool count: {PoolManager.Instance.Pool.Count}");
+            $"VehicleSave.OnLoaded complete. Final pool count: {PoolManager.Instance.PoolCount}");
     }
 
     private IEnumerator DeferredSetColor(LandVehicle vehicle, EVehicleColor color)

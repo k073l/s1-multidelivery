@@ -22,81 +22,87 @@ internal static class DeliveryInstancePatches
     [HarmonyPrefix]
     private static bool UsePoolSetStatus(DeliveryInstance __instance, EDeliveryStatus status)
     {
-        Console.Log($"Setting delivery status to {status} for delivery {__instance.DeliveryID}");
-        __instance.Status = status;
-        var shopInterface = DeliveryManager.Instance.GetShopInterface(__instance.StoreName);
-
-        switch (status)
+        lock (PoolManager.Lock)
         {
-            case EDeliveryStatus.Arrived:
-                if (PoolManager.Instance.Allocations.TryGetValue(__instance.DeliveryID, out var allocatedVehicle))
-                {
-                    // Use the pre-allocated pool vehicle
-                    __instance.ActiveVehicle = allocatedVehicle;
-                }
-                else
-                {
-                    // Use the base vehicle (first delivery for this shop)
-                    __instance.ActiveVehicle = shopInterface.DeliveryVehicle;
-                }
+            Console.Log($"Setting delivery status to {status} for delivery {__instance.DeliveryID}");
+            __instance.Status = status;
+            var shopInterface = DeliveryManager.Instance.GetShopInterface(__instance.StoreName);
 
-                __instance.ActiveVehicle.Activate(__instance);
-                break;
+            switch (status)
+            {
+                case EDeliveryStatus.Arrived:
+                    if (PoolManager.Instance.Allocations.TryGetValue(__instance.DeliveryID, out var allocatedVehicle))
+                    {
+                        // Use the pre-allocated pool vehicle
+                        __instance.ActiveVehicle = allocatedVehicle;
+                    }
+                    else
+                    {
+                        // Use the base vehicle (first delivery for this shop)
+                        __instance.ActiveVehicle = shopInterface.DeliveryVehicle;
+                    }
 
-            case EDeliveryStatus.Completed:
-                // Free allocations and notify network
-                if (__instance.ActiveVehicle == shopInterface.DeliveryVehicle)
-                {
-                    PoolManager.Instance.BaseVehicleAllocationsForShop[__instance.StoreName] = false;
+                    __instance.ActiveVehicle.Activate(__instance);
+                    break;
 
-                    // Notify network of base allocation freed
-                    NetworkConvenienceMethods.NotifyBaseAllocation(__instance.StoreName, false);
-                }
-                else
-                {
-                    PoolManager.Instance.FreeAllocation(__instance.DeliveryID);
-                }
+                case EDeliveryStatus.Completed:
+                    // Free allocations and notify network
+                    if (__instance.ActiveVehicle == shopInterface.DeliveryVehicle)
+                    {
+                        PoolManager.Instance.BaseVehicleAllocationsForShop[__instance.StoreName] = false;
 
-                if (__instance.ActiveVehicle != null)
-                    __instance.ActiveVehicle.Deactivate();
+                        // Notify network of base allocation freed
+                        NetworkConvenienceMethods.NotifyBaseAllocation(__instance.StoreName, false);
+                    }
+                    else
+                    {
+                        PoolManager.Instance.FreeAllocation(__instance.DeliveryID);
+                    }
 
-                __instance.onDeliveryCompleted?.Invoke();
-                break;
+                    if (__instance.ActiveVehicle != null)
+                        __instance.ActiveVehicle.Deactivate();
+
+                    __instance.onDeliveryCompleted?.Invoke();
+                    break;
+            }
+
+            return false;
         }
-
-        return false;
     }
 
     [HarmonyPatch(nameof(DeliveryInstance.AddItemsToDeliveryVehicle))]
     [HarmonyPrefix]
     private static bool UsePoolAddItemsToDeliveryVehicle(DeliveryInstance __instance)
     {
-        var shopInterface = DeliveryManager.Instance.GetShopInterface(__instance.StoreName);
-        DeliveryVehicle deliveryVehicle;
-
-        if (PoolManager.Instance.Allocations.TryGetValue(__instance.DeliveryID, out deliveryVehicle))
+        lock (PoolManager.Lock)
         {
-        }
-        else
-        {
-            deliveryVehicle = shopInterface?.DeliveryVehicle;
-        }
+            var shopInterface = DeliveryManager.Instance.GetShopInterface(__instance.StoreName);
+            DeliveryVehicle deliveryVehicle;
 
-        var items = __instance.Items;
-
-        foreach (var pair in items)
-        {
-            var item = Registry.GetItem(pair.String);
-            var count = pair.Int;
-            while (count > 0)
+            if (PoolManager.Instance.Allocations.TryGetValue(__instance.DeliveryID, out deliveryVehicle))
             {
-                var clampedCount = Mathf.Min(count, item.StackLimit);
-                count -= clampedCount;
-                var defaultInstance = item.GetDefaultInstance(clampedCount);
-                deliveryVehicle.Vehicle.Storage.InsertItem(defaultInstance, item);
             }
-        }
+            else
+            {
+                deliveryVehicle = shopInterface?.DeliveryVehicle;
+            }
 
-        return false;
+            var items = __instance.Items;
+
+            foreach (var pair in items)
+            {
+                var item = Registry.GetItem(pair.String);
+                var count = pair.Int;
+                while (count > 0)
+                {
+                    var clampedCount = Mathf.Min(count, item.StackLimit);
+                    count -= clampedCount;
+                    var defaultInstance = item.GetDefaultInstance(clampedCount);
+                    deliveryVehicle.Vehicle.Storage.InsertItem(defaultInstance, item);
+                }
+            }
+
+            return false;
+        }
     }
 }

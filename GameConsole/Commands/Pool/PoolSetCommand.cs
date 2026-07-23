@@ -25,7 +25,7 @@ public class PoolSetCommand : ICommandNode
             return;
         }
 
-        var todo = amount - PoolManager.Instance.Pool.Count;
+        var todo = amount - PoolManager.Instance.PoolCount;
         if (todo > 0)
         {
             for (var i = 0; i < todo; i++)
@@ -36,21 +36,14 @@ public class PoolSetCommand : ICommandNode
             for (var i = 0; i < -todo; i++)
             {
                 // remove last vehicle
-                var vehicle = PoolManager.Instance.Pool.LastOrDefault();
+                var vehicle = PoolManager.Instance.LastPoolVehicle();
                 if (vehicle == null)
                 {
                     context.Error($"Last pool vehicle not found. Downsizing the pool unavailable");
                     return;
                 }
 
-                PoolManager.Instance.Pool.Remove(vehicle);
-                // free alloc
-                var keys = PoolManager.Instance.Allocations
-                    .Where(x => x.Value == vehicle)
-                    .Select(x => x.Key)
-                    .ToList();
-                foreach (var key in keys)
-                    PoolManager.Instance.Allocations.Remove(key);
+                PoolManager.Instance.RemoveFromPool(vehicle);
                 VehicleSave.Instance.RemoveVehicle(vehicle);
             }
         }

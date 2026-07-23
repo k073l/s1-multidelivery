@@ -9,8 +9,8 @@ public class PoolGetCommand: ICommandNode
     public string Description => "Gets the number of vehicles in the pool.";
     public void Execute(CommandContext context)
     {
-        var poolCount = PoolManager.Instance.Pool.Count;
-        var allocations = PoolManager.Instance.Allocations.Count;
+        var poolCount = PoolManager.Instance.PoolCount;
+        var allocations = PoolManager.Instance.AllocationCount;
         context.Reply($"Pool has {poolCount} vehicles in it, {allocations} of which are allocated.");
     }
 }

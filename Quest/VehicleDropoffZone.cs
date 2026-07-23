@@ -117,7 +117,7 @@ public class VehicleDropoffZone : MonoBehaviour
         PoolManager.Instance.AddToSaveData(deliveryVehicle);
         PoolManager.Instance.AddToPool(deliveryVehicle);
         if (_quest is { } dq) dq.MarkAddVehicleEntryComplete();
-        _logger.Msg($"Vehicle added to pool. Total vehicles: {PoolManager.Instance.Pool.Count}");
+        _logger.Msg($"Vehicle added to pool. Total vehicles: {PoolManager.Instance.PoolCount}");
     }
 
     public void SetupZone(Vector3 corner1, Vector3 corner2, float height = 5f, Color? visualColor = null)

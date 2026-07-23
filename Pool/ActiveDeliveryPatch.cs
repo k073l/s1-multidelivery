@@ -23,13 +23,24 @@ internal static class ActiveDeliveryPatch
     {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (__result == null) return;
-        if (PoolManager.Instance.BaseVehicleAllocationsForShop.TryGetValue(shop.MatchingShopInterfaceName,
-                out var allocated))
+
+        lock (PoolManager.Lock)
         {
-            if (UnityEngine.Time.frameCount % 30 == 0) Logger.Debug($"Base: {allocated}");
-            if (!allocated)
+            if (PoolManager.Instance.BaseVehicleAllocationsForShop.TryGetValue(shop.MatchingShopInterfaceName,
+                    out var allocated))
             {
-                __result = null!;
+                if (UnityEngine.Time.frameCount % 30 == 0) Logger.Debug($"Base: {allocated}");
+                if (!allocated)
+                {
+                    __result = null!;
+                }
+                else
+                {
+                    var freeVehicle = PoolManager.Instance.GetFirstFree();
+                    if (freeVehicle == null) return;
+                    Logger.Debug($"Free pool vehicle found");
+                    __result = null!;
+                }
             }
             else
             {
@@ -39,33 +50,29 @@ internal static class ActiveDeliveryPatch
                 __result = null!;
             }
         }
-        else
-        {
-            var freeVehicle = PoolManager.Instance.GetFirstFree();
-            if (freeVehicle == null) return;
-            Logger.Debug($"Free pool vehicle found");
-            __result = null!;
-        }
     }
 
     [HarmonyPatch(nameof(DeliveryManager.SendDelivery))]
     [HarmonyPostfix]
     private static void AllocateVehicle(DeliveryManager __instance, DeliveryInstance delivery)
     {
-        PoolManager.Instance.BaseVehicleAllocationsForShop.TryAdd(delivery.StoreName, false);
-        Logger.Debug($"Base allocation: {PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName]}");
-
-        if (!PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName])
+        lock (PoolManager.Lock)
         {
-            Logger.Debug("Base vehicle allocating");
-            PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName] = true;
+            PoolManager.Instance.BaseVehicleAllocationsForShop.TryAdd(delivery.StoreName, false);
+            Logger.Debug($"Base allocation: {PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName]}");
 
-            // Notify network of base allocation change
-            NetworkConvenienceMethods.NotifyBaseAllocation(delivery.StoreName, true);
-            return;
+            if (!PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName])
+            {
+                Logger.Debug("Base vehicle allocating");
+                PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName] = true;
+
+                // Notify network of base allocation change
+                NetworkConvenienceMethods.NotifyBaseAllocation(delivery.StoreName, true);
+                return;
+            }
+
+            PoolManager.Instance.GetOrAllocateFirstFree(delivery.DeliveryID);
+            Logger.Debug($"Allocated for {delivery.DeliveryID}");
         }
-
-        PoolManager.Instance.GetOrAllocateFirstFree(delivery.DeliveryID);
-        Logger.Debug($"Allocated for {delivery.DeliveryID}");
     }
 }

@@ -65,26 +65,29 @@ internal static class CapacityText
 
     private static (int available, int total) GetVehiclesForShop(DeliveryShop shop)
     {
-        var shopName = shop.MatchingShopInterfaceName;
-        var pool = PoolManager.Instance;
+        lock (PoolManager.Lock)
+        {
+            var shopName = shop.MatchingShopInterfaceName;
+            var pool = PoolManager.Instance;
 
-        var total = 1 + pool.Pool.Count;
+            var total = 1 + pool.Pool.Count;
 
-        var available = 0;
+            var available = 0;
 
-        // Base vehicle
-        var baseAllocated = pool.BaseVehicleAllocationsForShop
-            .TryGetValue(shopName, out var allocated) && allocated;
+            // Base vehicle
+            var baseAllocated = pool.BaseVehicleAllocationsForShop
+                .TryGetValue(shopName, out var allocated) && allocated;
 
-        if (!baseAllocated)
-            available++;
+            if (!baseAllocated)
+                available++;
 
-        // Custom vehicles
-        var customAllocated = Math.Min(pool.Allocations.Count, pool.Pool.Count);
-        var customAvailable = pool.Pool.Count - customAllocated;
+            // Custom vehicles
+            var customAllocated = Math.Min(pool.Allocations.Count, pool.Pool.Count);
+            var customAvailable = pool.Pool.Count - customAllocated;
 
-        available += customAvailable;
+            available += customAvailable;
 
-        return (available, total);
+            return (available, total);
+        }
     }
 }

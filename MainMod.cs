@@ -34,7 +34,7 @@ public static class BuildInfo
     public const string Name = "MultiDelivery";
     public const string Description = "Add vehicles, order multiple deliveries from the same place!";
     public const string Author = "k073l";
-    public const string Version = "1.0.3";
+    public const string Version = "1.0.4";
 }
 
 public class MultiDelivery : MelonMod
@@ -63,9 +63,7 @@ public class MultiDelivery : MelonMod
         QuestSetupManager.OnSceneWasLoaded(buildIndex, sceneName);
         if (sceneName != "Menu") return;
         // Cleanup
-        PoolManager.Instance.Pool.Clear();
-        PoolManager.Instance.Allocations.Clear();
-        PoolManager.Instance.BaseVehicleAllocationsForShop.Clear();
+        PoolManager.Instance.ClearAll();
     }
 
     private IEnumerator InitializeNetworkManager()

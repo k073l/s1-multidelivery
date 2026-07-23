@@ -129,7 +129,7 @@ public class DropoffQuestDialogue
             onConfirmed: () =>
             {
                 var quest = QuestManager.GetQuestByName(DropoffQuest.Name) as DropoffQuest;
-                var hasExpandedBefore = PoolManager.Instance.Pool.Count > 0;
+                var hasExpandedBefore = PoolManager.Instance.PoolCount > 0;
                 var questActive = quest is { State: QuestState.Active };
 
                 Logger.Debug($"Quest state - Active: {questActive}, Has expanded: {hasExpandedBefore}");

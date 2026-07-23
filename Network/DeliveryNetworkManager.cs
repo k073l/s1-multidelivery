@@ -261,16 +261,19 @@ public class DeliveryNetworkManager
         {
             var response = new VehiclePoolSyncResponse();
 
-            foreach (var vehicle in PoolManager.Instance.Pool)
+            lock (PoolManager.Lock)
             {
-                response.Vehicles.Add(new VehiclePoolSyncResponse.VehicleData
+                foreach (var vehicle in PoolManager.Instance.Pool)
                 {
-                    ObjectId = vehicle.Vehicle.ObjectId,
-                    Guid = vehicle.GUID,
-                    Name = vehicle.Vehicle.vehicleName,
-                    Code = vehicle.Vehicle.VehicleCode,
-                    Color = (int)vehicle.Vehicle.Color.displayedColor,
-                });
+                    response.Vehicles.Add(new VehiclePoolSyncResponse.VehicleData
+                    {
+                        ObjectId = vehicle.Vehicle.ObjectId,
+                        Guid = vehicle.GUID,
+                        Name = vehicle.Vehicle.vehicleName,
+                        Code = vehicle.Vehicle.VehicleCode,
+                        Color = (int)vehicle.Vehicle.Color.displayedColor,
+                    });
+                }
             }
 
             _logger.Msg($"Sending pool sync with {response.Vehicles.Count} vehicles");
@@ -346,15 +349,24 @@ public class DeliveryNetworkManager
             yield return ExponentialBackoff(
                 () => UnityEngine.SceneManagement.SceneManager.GetSceneByName("Main").isLoaded, 1f, 30f, 60f);
             yield return ExponentialBackoff(
-                () => PoolManager.Instance.Pool.FirstOrDefault(v => v.GUID == message.VehicleGuid) != null,
+                () => {
+                    lock (PoolManager.Lock)
+                    {
+                        return PoolManager.Instance.Pool.FirstOrDefault(v => v.GUID == message.VehicleGuid) != null;
+                    }
+                },
                 1f,
                 30f,
                 60f
             );
             try
             {
-                var vehicle = PoolManager.Instance.Pool
-                    .FirstOrDefault(v => v.GUID == message.VehicleGuid);
+                DeliveryVehicle vehicle;
+                lock (PoolManager.Lock)
+                {
+                    vehicle = PoolManager.Instance.Pool
+                        .FirstOrDefault(v => v.GUID == message.VehicleGuid);
+                }
 
                 if (vehicle == null)
                 {
@@ -362,19 +374,22 @@ public class DeliveryNetworkManager
                     yield break;
                 }
 
-                if (message.IsAllocated)
+                lock (PoolManager.Lock)
                 {
-                    _logger.Msg($"Trying to allocate {message.VehicleGuid} for delivery {message.DeliveryId}");
-                    if (!PoolManager.Instance.Allocations.ContainsKey(message.DeliveryId))
+                    if (message.IsAllocated)
                     {
-                        _logger.Msg($"Allocating {message.VehicleGuid} for delivery {message.DeliveryId}");
-                        PoolManager.Instance.Allocations.Add(message.DeliveryId, vehicle);
+                        _logger.Msg($"Trying to allocate {message.VehicleGuid} for delivery {message.DeliveryId}");
+                        if (!PoolManager.Instance.Allocations.ContainsKey(message.DeliveryId))
+                        {
+                            _logger.Msg($"Allocating {message.VehicleGuid} for delivery {message.DeliveryId}");
+                            PoolManager.Instance.Allocations.Add(message.DeliveryId, vehicle);
+                        }
                     }
-                }
-                else
-                {
-                    _logger.Msg($"Deallocating {message.VehicleGuid} for delivery {message.DeliveryId}");
-                    PoolManager.Instance.Allocations.Remove(message.DeliveryId);
+                    else
+                    {
+                        _logger.Msg($"Deallocating {message.VehicleGuid} for delivery {message.DeliveryId}");
+                        PoolManager.Instance.Allocations.Remove(message.DeliveryId);
+                    }
                 }
             }
             catch (Exception ex)
@@ -388,13 +403,16 @@ public class DeliveryNetworkManager
     {
         _logger.Msg($"Received base allocation: Shop={message.ShopName}, Allocated={message.IsAllocated}");
 
-        try
+        lock (PoolManager.Lock)
         {
-            PoolManager.Instance.BaseVehicleAllocationsForShop[message.ShopName] = message.IsAllocated;
-        }
-        catch (Exception ex)
-        {
-            _logger.Error($"Failed to process base allocation: {ex}");
+            try
+            {
+                PoolManager.Instance.BaseVehicleAllocationsForShop[message.ShopName] = message.IsAllocated;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to process base allocation: {ex}");
+            }
         }
     }
 
@@ -428,16 +446,19 @@ public class DeliveryNetworkManager
         await Task.Delay(1000);
 
         var response = new VehiclePoolSyncResponse();
-        foreach (var vehicle in PoolManager.Instance.Pool)
+        lock (PoolManager.Lock)
         {
-            response.Vehicles.Add(new VehiclePoolSyncResponse.VehicleData
+            foreach (var vehicle in PoolManager.Instance.Pool)
             {
-                ObjectId = vehicle.Vehicle.ObjectId,
-                Guid = vehicle.GUID,
-                Name = vehicle.Vehicle.vehicleName,
-                Code = vehicle.Vehicle.VehicleCode,
-                Color = (int)vehicle.Vehicle.Color.displayedColor
-            });
+                response.Vehicles.Add(new VehiclePoolSyncResponse.VehicleData
+                {
+                    ObjectId = vehicle.Vehicle.ObjectId,
+                    Guid = vehicle.GUID,
+                    Name = vehicle.Vehicle.vehicleName,
+                    Code = vehicle.Vehicle.VehicleCode,
+                    Color = (int)vehicle.Vehicle.Color.displayedColor
+                });
+            }
         }
 
         _logger.Msg($"Sending pool sync to new member ({response.Vehicles.Count} vehicles)");

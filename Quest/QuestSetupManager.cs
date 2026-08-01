@@ -15,7 +15,7 @@ public class QuestSetupManager
     internal const string QuestStartMessage =
         "Your properties are getting busy. Want to handle more than one delivery at a time? I've got an idea. Stop by the dealership.";
     private static FullRank RequiredRank = new(Rank.Enforcer, 1);
-    private static readonly Logger Logger = new(nameof(QuestSetupManager));
+    internal static readonly Logger Logger = new(nameof(QuestSetupManager));
     
     public static void OnSceneWasLoaded(int buildIndex, string sceneName)
     {

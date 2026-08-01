@@ -4,7 +4,7 @@ namespace MultiDelivery.GameConsole.Core;
 
 public class CommandContext
 {
-    private readonly MelonLogger.Instance _logger;
+    private readonly Logger _logger;
 
     public IReadOnlyList<string> Args { get; }
 
@@ -17,8 +17,7 @@ public class CommandContext
         Path = path;
         Args = args;
 
-        _logger = new MelonLogger.Instance(
-            $"{nameof(MultiDelivery)}.Console.{Path}");
+        _logger = new Logger($"Console.{Path}");
     }
 
     public CommandContext CreateChild(

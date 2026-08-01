@@ -39,21 +39,31 @@ public static class BuildInfo
 
 public class MultiDelivery : MelonMod
 {
-    private static readonly Logger Logger = new("");
+    private static Logger Logger;
     private IDeliveryNetworkManager? _networkManager;
     private bool _networkManagerFailed;
 
     internal static MelonPreferences_Category Category =
         MelonPreferences.CreateCategory($"{nameof(MultiDelivery)}Settings", $"{nameof(MultiDelivery)}'s Settings");
 
-    internal static MelonPreferences_Entry<bool> NetworkLogging =
-        Category.CreateEntry("NetworkDebugLogs", false, "Enable Network Logs",
-            "Display networking-related debug logs in MelonLoader console/log file (may be verbose)"
-        );
+    internal static MelonPreferences_Entry<bool> NetworkLogging;
+    internal static MelonPreferences_Entry<bool> PoolDebugLogging;
+    internal static MelonPreferences_Entry<bool> QuestDebugLogging;
 
     public override void OnInitializeMelon()
     {
+        Logger = LoggerInstance;
         Logger.Msg("MultiDelivery initialized");
+        NetworkLogging = Category.CreateEntry("NetworkDebugLogs", false, "Enable Network Logs",
+            "Display networking-related debug logs in MelonLoader console/log file (may be verbose)"
+        );
+        PoolDebugLogging = Category.CreateEntry("PoolDebugLogs", false, "Enable Pool Debug Logs",
+            "Display pool-related debug logs in MelonLoader console/log file (may be verbose)"
+        );
+        QuestDebugLogging = Category.CreateEntry("QuestDebugLogs", false, "Enable Quest Debug Logs",
+            "Display quest-related debug logs in MelonLoader console/log file (may be verbose)"
+        );
+        RegisterLoggerSettings();
         CheckDependencies();
         MelonCoroutines.Start(InitializeNetworkManager());
     }
@@ -78,6 +88,7 @@ public class MultiDelivery : MelonMod
             yield break;
         }
         NetworkConvenienceMethods.InitializeNetworking(_networkManager);
+        _networkManager.RegisterLoggerSettings();
     }
 
     public override void OnUpdate()
@@ -165,5 +176,25 @@ public class MultiDelivery : MelonMod
             ]
         });
         depChecker.ProcessAndAlert();
+    }
+
+    private static void RegisterLoggerSettings()
+    {
+        SetAndRegister(ActiveDeliveryPatch.Logger, PoolDebugLogging);
+        SetAndRegister(CapacityText.Logger, PoolDebugLogging);
+        SetAndRegister(DeliveryInstancePatches.Logger, PoolDebugLogging);
+        SetAndRegister(LoaderPatch.Logger, PoolDebugLogging);
+        SetAndRegister(PoolManager.Logger, PoolDebugLogging);
+        
+        SetAndRegister(DropoffQuest.Logger, QuestDebugLogging);
+        SetAndRegister(DropoffQuestDialogue.Logger, QuestDebugLogging);
+        SetAndRegister(QuestSetupManager.Logger, QuestDebugLogging);
+        // VehicleDropoffZone logger registers itself
+    }
+
+    private static void SetAndRegister(Logger logger, MelonPreferences_Entry<bool>? entry)
+    {
+        logger.RaiseDebug = entry?.Value ?? false;
+        entry?.OnEntryValueChanged.Subscribe((_, newValue) => logger.RaiseDebug = newValue);
     }
 }

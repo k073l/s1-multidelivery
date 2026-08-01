@@ -15,7 +15,7 @@ namespace MultiDelivery.Pool;
 [HarmonyPatch(typeof(DeliveryManager))]
 internal static class ActiveDeliveryPatch
 {
-    private static readonly Logger Logger = new(nameof(ActiveDeliveryPatch));
+    internal static readonly Logger Logger = new(nameof(ActiveDeliveryPatch));
     
     [HarmonyPatch(nameof(DeliveryManager.GetActiveShopDelivery))]
     [HarmonyPostfix]

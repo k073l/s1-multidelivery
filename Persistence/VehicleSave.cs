@@ -107,7 +107,7 @@ public class VehicleSave : Saveable
 
     protected override void OnLoaded()
     {
-        Melon<MultiDelivery>.Logger.Msg($"VehicleSave.OnLoaded: Loading {_dtos.Count} vehicles");
+        Logger.Msg($"OnLoaded: Loading {_dtos.Count} vehicles");
         if (_parent == null)
         {
             // try getting it first
@@ -146,8 +146,7 @@ public class VehicleSave : Saveable
             Logger.Debug($"Added to pool. Pool count now: {PoolManager.Instance.PoolCount}");
         }
 
-        Logger.Msg(
-            $"VehicleSave.OnLoaded complete. Final pool count: {PoolManager.Instance.PoolCount}");
+        Logger.Msg($"OnLoaded complete. Final pool count: {PoolManager.Instance.PoolCount}");
     }
 
     private IEnumerator DeferredSetColor(LandVehicle vehicle, EVehicleColor color)

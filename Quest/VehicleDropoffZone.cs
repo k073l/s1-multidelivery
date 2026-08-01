@@ -36,6 +36,9 @@ public class VehicleDropoffZone : MonoBehaviour
     private void Awake()
     {
         _logger = new Logger("VehicleDropoffZone");
+        _logger.RaiseDebug = MultiDelivery.QuestDebugLogging?.Value ?? false;
+        MultiDelivery.QuestDebugLogging?.OnEntryValueChanged
+            .Subscribe((_, newValue) => _logger.RaiseDebug = newValue);
     }
 
     private void Start()

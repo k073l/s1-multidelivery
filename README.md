@@ -54,6 +54,7 @@ Note: May not be compatible with other delivery-adjacent mods.
 4. Check the MelonLoader logs if the mod loaded correctly, if dependencies were found, and for any errors
    - Standard log file location: `<game folder>/MelonLoader/Latest.log`
 5. If issues persist, try disabling other mods to check for compatibility issues, as well as reporting the issue with as much detail as possible (steps to reproduce, expected vs actual behavior, logs, etc.)
+   - Be sure to enable all (relevant) debug messages configs
 
 ### Testing/Debugging Commands
 - `multidelivery help` - lists available commands and their usage
@@ -64,7 +65,6 @@ Note: May not be compatible with other delivery-adjacent mods.
 - `multidelivery pool get` - prints the current pool size and number of vehicles currently in use
 
 ## Known Issues
-- Pool vehicles don't load in correctly on second and subsequent save loads - if you start a game, enter a save, exit to menu and enter the save again, the vehicles will not load correctly. This can be fixed by quitting the game, since first load into a given save works correctly or by loading into a different save and then back to the original one.
 - Graffiti on pool vehicles isn't saved to a save file. Arrived deliveries (vehicles that are waiting on the loading docks) will persist their graffiti though.
 
 ## License

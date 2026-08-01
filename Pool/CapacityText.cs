@@ -15,7 +15,7 @@ namespace MultiDelivery.Pool;
 [HarmonyPatch(typeof(DeliveryShop))]
 internal static class CapacityText
 {
-    private static readonly Logger Logger = new(nameof(CapacityText));
+    internal static readonly Logger Logger = new(nameof(CapacityText));
     private static ConditionalWeakTable<DeliveryShop, Text> _capacityTexts = new();
 
     [HarmonyPatch(nameof(DeliveryShop.Initialize))]

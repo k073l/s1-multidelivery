@@ -44,7 +44,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
 
     public DeliveryNetworkManager()
     {
-        _logger = new Logger("Network", LogLevel.NetworkTrace);
+        _logger = new Logger("Network");
     }
 
     public bool Initialize()
@@ -76,6 +76,13 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
             _logger.Error($"Failed to initialize network manager: {ex}");
             return false;
         }
+    }
+    
+    public void RegisterLoggerSettings()
+    {
+        _logger.RaiseDebug = MultiDelivery.NetworkLogging?.Value ?? false;
+        MultiDelivery.NetworkLogging?.OnEntryValueChanged
+            .Subscribe((_, newValue) => _logger.RaiseDebug = newValue);
     }
 
     private void RegisterMessageHandlers()
@@ -121,7 +128,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
             VehicleColor = (int)vehicle.Vehicle.Color.displayedColor,
         };
 
-        _logger.Msg($"Broadcasting vehicle added: ObjectId={message.ObjectId}, GUID={message.VehicleGuid}");
+        _logger.D($"Broadcasting vehicle added: ObjectId={message.ObjectId}, GUID={message.VehicleGuid}");
         await _client.BroadcastMessageAsync(message);
     }
 
@@ -135,7 +142,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
             VehicleGuid = vehicle.GUID
         };
 
-        _logger.Msg($"Broadcasting vehicle created: ObjectId={message.ObjectId}");
+        _logger.D($"Broadcasting vehicle created: ObjectId={message.ObjectId}");
         await _client.BroadcastMessageAsync(message);
     }
 
@@ -150,7 +157,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
             IsAllocated = isAllocated
         };
 
-        _logger.Msg($"Broadcasting allocation: Delivery={deliveryId}, Vehicle={vehicle.GUID}, Allocated={isAllocated}");
+        _logger.D($"Broadcasting allocation: Delivery={deliveryId}, Vehicle={vehicle.GUID}, Allocated={isAllocated}");
         await _client.BroadcastMessageAsync(message);
     }
 
@@ -164,7 +171,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
             IsAllocated = isAllocated
         };
 
-        _logger.Msg($"Broadcasting base allocation: Shop={shopName}, Allocated={isAllocated}");
+        _logger.D($"Broadcasting base allocation: Shop={shopName}, Allocated={isAllocated}");
         await _client.BroadcastMessageAsync(message);
     }
 
@@ -176,7 +183,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
     {
         // if (IsHost) return;
 
-        _logger.Msg($"Received VehicleAdded: ObjectId={message.ObjectId}, GUID={message.VehicleGuid}");
+        _logger.D($"Received VehicleAdded: ObjectId={message.ObjectId}, GUID={message.VehicleGuid}");
         MelonCoroutines.Start(ProcessMessage());
 
         IEnumerator ProcessMessage()
@@ -211,7 +218,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
 
                 PoolManager.Instance.AddToPool(deliveryVehicle, notify: false); // don't notify back
 
-                _logger.Msg($"Added vehicle to pool: ObjectId={message.ObjectId}, DeliveryGUID={message.VehicleGuid}");
+                _logger.D($"Added vehicle to pool: ObjectId={message.ObjectId}, DeliveryGUID={message.VehicleGuid}");
             }
             catch (Exception ex)
             {
@@ -224,7 +231,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
     {
         if (!IsHost) return;
         
-        _logger.Msg($"Received vehicle created message from {senderId}");
+        _logger.D($"Received vehicle created message from {senderId}");
         MelonCoroutines.Start(ProcessMessage());
 
         IEnumerator ProcessMessage()
@@ -244,7 +251,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
                     yield break;
                 }
                 VehicleSave.Instance.AddVehicle(landVehicle);
-                _logger.Msg($"Added created vehicle to save data: ObjectId={message.ObjectId}, GUID={message.VehicleGuid}");
+                _logger.D($"Added created vehicle to save data: ObjectId={message.ObjectId}, GUID={message.VehicleGuid}");
             }
             catch (Exception e)
             {
@@ -257,7 +264,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
     {
         if (!IsHost) return;
 
-        _logger.Msg($"Received pool sync request from {senderId}");
+        _logger.D($"Received pool sync request from {senderId}");
 
         try
         {
@@ -278,7 +285,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
                 }
             }
 
-            _logger.Msg($"Sending pool sync with {response.Vehicles.Count} vehicles");
+            _logger.D($"Sending pool sync with {response.Vehicles.Count} vehicles");
             await _client.SendMessageToPlayerAsync(senderId, response);
         }
         catch (Exception ex)
@@ -291,7 +298,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
     {
         if (IsHost) return;
 
-        _logger.Msg($"Received pool sync response with {message.Vehicles.Count} vehicles");
+        _logger.D($"Received pool sync response with {message.Vehicles.Count} vehicles");
         MelonCoroutines.Start(ProcessMessage());
 
         IEnumerator ProcessMessage()
@@ -330,7 +337,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
                     PoolManager.Instance.AddToPool(deliveryVehicle, notify: false); // don't notify back
                 }
 
-                _logger.Msg($"Pool synchronized: {PoolManager.Instance.Pool.Count} vehicles");
+                _logger.D($"Pool synchronized: {PoolManager.Instance.Pool.Count} vehicles");
             }
             catch (Exception ex)
             {
@@ -343,7 +350,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
 
     private void OnVehicleAllocation(VehicleAllocationMessage message, CSteamID senderId)
     {
-        _logger.Msg(
+        _logger.D(
             $"Received allocation: Delivery={message.DeliveryId}, Vehicle={message.VehicleGuid}, Allocated={message.IsAllocated}");
 
         MelonCoroutines.Start(ProcessMessage());
@@ -399,16 +406,16 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
                 {
                     if (message.IsAllocated)
                     {
-                        _logger.Msg($"Trying to allocate {message.VehicleGuid} for delivery {message.DeliveryId}");
+                        _logger.D($"Trying to allocate {message.VehicleGuid} for delivery {message.DeliveryId}");
                         if (!PoolManager.Instance.Allocations.ContainsKey(message.DeliveryId))
                         {
-                            _logger.Msg($"Allocating {message.VehicleGuid} for delivery {message.DeliveryId}");
+                            _logger.D($"Allocating {message.VehicleGuid} for delivery {message.DeliveryId}");
                             PoolManager.Instance.Allocations.Add(message.DeliveryId, vehicle);
                         }
                     }
                     else
                     {
-                        _logger.Msg($"Deallocating {message.VehicleGuid} for delivery {message.DeliveryId}");
+                        _logger.D($"Deallocating {message.VehicleGuid} for delivery {message.DeliveryId}");
                         PoolManager.Instance.Allocations.Remove(message.DeliveryId);
                     }
                 }
@@ -422,7 +429,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
 
     private void OnBaseVehicleAllocation(BaseVehicleAllocationMessage message, CSteamID senderId)
     {
-        _logger.Msg($"Received base allocation: Shop={message.ShopName}, Allocated={message.IsAllocated}");
+        _logger.D($"Received base allocation: Shop={message.ShopName}, Allocated={message.IsAllocated}");
 
         lock (PoolManager.Lock)
         {
@@ -443,13 +450,13 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
 
     private void OnLobbyCreated(object sender, SteamNetworkLib.Events.LobbyCreatedEventArgs e)
     {
-        _logger.Msg($"Lobby created: {e.Lobby.LobbyId}");
+        _logger.D($"Lobby created: {e.Lobby.LobbyId}");
         _client.SetMyData(ModDataKey, ModVersion);
     }
 
     private void OnLobbyJoined(object sender, SteamNetworkLib.Events.LobbyJoinedEventArgs e)
     {
-        _logger.Msg($"Joined lobby: {e.Lobby.LobbyId}");
+        _logger.D($"Joined lobby: {e.Lobby.LobbyId}");
         _client.SetMyData(ModDataKey, ModVersion);
 
         if (!IsHost)
@@ -462,7 +469,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
     {
         if (!IsHost) return;
 
-        _logger.Msg($"Member joined: {e.Member.DisplayName}");
+        _logger.D($"Member joined: {e.Member.DisplayName}");
 
         await Task.Delay(1000);
 
@@ -482,13 +489,13 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
             }
         }
 
-        _logger.Msg($"Sending pool sync to new member ({response.Vehicles.Count} vehicles)");
+        _logger.D($"Sending pool sync to new member ({response.Vehicles.Count} vehicles)");
         await _client.SendMessageToPlayerAsync(e.Member.SteamId, response);
     }
 
     private void OnLobbyLeft(object sender, SteamNetworkLib.Events.LobbyLeftEventArgs e)
     {
-        _logger.Msg($"Left lobby: {e.Reason}");
+        _logger.D($"Left lobby: {e.Reason}");
     }
 
     #endregion
@@ -511,7 +518,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
             RequesterId = _client.LocalPlayerId.ToString()
         };
 
-        _logger.Msg("Requesting pool sync from host");
+        _logger.D("Requesting pool sync from host");
         await _client.SendMessageToPlayerAsync(host.SteamId, message);
     }
 
@@ -535,7 +542,7 @@ public class DeliveryNetworkManager : IDeliveryNetworkManager
             {
                 if (vehicle.ObjectId == objectId)
                 {
-                    _logger.Msg($"Found LandVehicle: ObjectId={objectId}, Name={vehicle.vehicleName}");
+                    _logger.D($"Found LandVehicle: ObjectId={objectId}, Name={vehicle.vehicleName}");
                     return vehicle;
                 }
             }

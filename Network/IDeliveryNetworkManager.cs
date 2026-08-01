@@ -22,7 +22,9 @@ public interface IDeliveryNetworkManager : IDisposable
     bool IsHost { get; }
     bool IsSingleplayer { get; }
     bool HostOrSingleplayer { get; }
-    
+
+    void RegisterLoggerSettings();
+
     bool Initialize();
     void Update();
     void BroadcastVehicleAdded(DeliveryVehicle vehicle);

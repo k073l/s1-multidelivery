@@ -34,7 +34,7 @@ public class DropoffQuest : S1API.Quests.Quest
 
     private static VehicleDropoffZone dropoffZone;
     private static Vector3 _dropoffZonePosition;
-    private static readonly Logger Logger = new(nameof(DropoffQuest));
+    internal static readonly Logger Logger = new(nameof(DropoffQuest));
 
     protected override void OnCreated()
     {

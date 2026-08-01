@@ -17,13 +17,17 @@ namespace MultiDelivery.Pool;
 [HarmonyPatch(typeof(DeliveryInstance))]
 internal static class DeliveryInstancePatches
 {
+    internal static readonly Logger Logger = new(nameof(DeliveryInstancePatches));
+
     [HarmonyPatch(nameof(DeliveryInstance.SetStatus))]
     [HarmonyPrefix]
     private static bool UsePoolSetStatus(DeliveryInstance __instance, EDeliveryStatus status)
     {
         lock (PoolManager.Lock)
         {
-            Console.Log($"Setting delivery status to {status} for delivery {__instance.DeliveryID}");
+            var message = $"Setting delivery status to {status} for delivery {__instance.DeliveryID}";
+            Console.Log(message);
+            Logger.Msg(message);
             __instance.Status = status;
             var shopInterface = DeliveryManager.Instance.GetShopInterface(__instance.StoreName);
 

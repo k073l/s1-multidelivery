@@ -24,7 +24,7 @@ namespace MultiDelivery.Quest;
 
 public class DropoffQuestDialogue
 {
-    private static readonly Logger Logger = new(nameof(DropoffQuestDialogue));
+    internal static readonly Logger Logger = new(nameof(DropoffQuestDialogue));
     private const string ContainerName = "DeliveryExpansion";
 
     public static void Register()

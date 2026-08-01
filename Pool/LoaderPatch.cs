@@ -36,7 +36,7 @@ namespace MultiDelivery.Pool;
 [HarmonyPatch(typeof(DeliveriesLoader))]
 internal static class LoaderPatch
 {
-    private static readonly Logger Logger = new(nameof(LoaderPatch));
+    internal static readonly Logger Logger = new(nameof(LoaderPatch));
 
     [HarmonyPatch(nameof(DeliveriesLoader.Load))]
     [HarmonyPrefix]

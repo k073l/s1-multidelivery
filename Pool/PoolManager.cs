@@ -15,7 +15,7 @@ namespace MultiDelivery.Pool;
 public class PoolManager
 {
     public static PoolManager Instance { get; } = new();
-    private static readonly Logger Logger = new(nameof(PoolManager));
+    internal static readonly Logger Logger = new(nameof(PoolManager));
 
     public HashSet<DeliveryVehicle> Pool { get; } = [];
     internal Dictionary<string, DeliveryVehicle> Allocations { get; } = new();

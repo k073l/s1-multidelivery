@@ -4,7 +4,7 @@ namespace MultiDelivery.Network;
 
 internal static class NetworkLoader
 {
-    private static readonly Logger Logger = new Logger("NetworkLoader");
+    private static readonly Logger Logger = new("NetworkLoader");
 
     internal static IDeliveryNetworkManager? Create()
     {

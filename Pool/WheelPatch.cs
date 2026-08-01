@@ -3,12 +3,12 @@
 using Guid = System.Guid;
 using ScheduleOne.Delivery;
 using ScheduleOne.Vehicles;
-using ScheduleOne.Weather;
+using ScheduleOne.Core.Weather;
 #else
 using Guid = Il2CppSystem.Guid;
 using Il2CppScheduleOne.Delivery;
 using Il2CppScheduleOne.Vehicles;
-using Il2CppScheduleOne.Weather;
+using Il2CppScheduleOne.Core.Weather;
 #endif
 
 namespace MultiDelivery.Pool;

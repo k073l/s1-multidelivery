@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using MultiDelivery.Network;
 using UnityEngine;
 #if MONO
 using ScheduleOne;
@@ -46,18 +45,11 @@ internal static class DeliveryInstancePatches
                     break;
 
                 case EDeliveryStatus.Completed:
-                    // Free allocations and notify network
                     if (__instance.ActiveVehicle == shopInterface.DeliveryVehicle)
                     {
-                        PoolManager.Instance.BaseVehicleAllocationsForShop[__instance.StoreName] = false;
-
-                        // Notify network of base allocation freed
-                        NetworkConvenienceMethods.NotifyBaseAllocation(__instance.StoreName, false);
+                        PoolManager.Instance.SetBaseAllocation(__instance.StoreName, false);
                     }
-                    else
-                    {
-                        PoolManager.Instance.FreeAllocation(__instance.DeliveryID);
-                    }
+                    PoolManager.Instance.FreeAllocation(__instance.DeliveryID);
 
                     if (__instance.ActiveVehicle != null)
                         __instance.ActiveVehicle.Deactivate();

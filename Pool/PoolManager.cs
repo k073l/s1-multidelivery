@@ -85,11 +85,42 @@ public class PoolManager
             Allocations.Add(deliveryId, free);
             Logger.Debug($"Allocated new vehicle for {deliveryId}, vehicle: {free.GUID}");
 
+            VehicleSave.Instance.AddAllocation(deliveryId, free);
+
             // Notify network of allocation
             NetworkConvenienceMethods.NotifyAllocation(deliveryId, free, isAllocated: true);
 
             return free;
         }
+    }
+
+    internal void AllocateDirectly(string deliveryId, DeliveryVehicle deliveryVehicle)
+    {
+        lock (Lock)
+        {
+            Logger.Debug($"AllocateDirectly called for: {deliveryId}");
+            if (Allocations.TryGetValue(deliveryId, out _))
+            {
+                Logger.Debug($"Already allocated, returning");
+                return;
+            }
+            Allocations.Add(deliveryId, deliveryVehicle);
+            Logger.Debug($"Directly allocated vehicle for {deliveryId}, vehicle: {deliveryVehicle.GUID}");
+
+            VehicleSave.Instance.AddAllocation(deliveryId, deliveryVehicle);
+
+            NetworkConvenienceMethods.NotifyAllocation(deliveryId, deliveryVehicle, isAllocated: true);
+        }
+    }
+
+    internal void SetBaseAllocation(string shopName, bool allocated)
+    {
+        lock (Lock)
+        {
+            BaseVehicleAllocationsForShop[shopName] = allocated;
+        }
+        VehicleSave.Instance.SyncBaseAllocation(shopName, allocated);
+        NetworkConvenienceMethods.NotifyBaseAllocation(shopName, allocated);
     }
 
     public void FreeAllocation(string deliveryId)
@@ -101,6 +132,7 @@ public class PoolManager
             if (Allocations.TryGetValue(deliveryId, out var deliveryVehicle))
             {
                 Allocations.Remove(deliveryId);
+                VehicleSave.Instance.RemoveAllocation(deliveryId);
 
                 // Notify network of deallocation
                 NetworkConvenienceMethods.NotifyAllocation(deliveryId, deliveryVehicle, isAllocated: false);
@@ -126,6 +158,9 @@ public class PoolManager
             Allocations.Clear();
             BaseVehicleAllocationsForShop.Clear();
         }
+        var save = VehicleSave.Instance;
+        save.ClearAllocations();
+        save.ClearBaseAllocations();
     }
 
     internal bool RemoveFromPool(DeliveryVehicle vehicle)
@@ -134,7 +169,11 @@ public class PoolManager
         {
             var keys = Allocations.Where(x => x.Value == vehicle).Select(x => x.Key).ToList();
             foreach (var key in keys)
+            {
                 Allocations.Remove(key);
+                VehicleSave.Instance.RemoveAllocation(key);
+            }
+            VehicleSave.Instance.RemoveAllocationsForVehicle(vehicle);
             return Pool.Remove(vehicle);
         }
     }

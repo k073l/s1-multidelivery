@@ -1,12 +1,14 @@
 ﻿using HarmonyLib;
 using MelonLoader;
 using MultiDelivery.Helpers;
+using MultiDelivery.Persistence;
 using UnityEngine;
 #if MONO
 using ScheduleOne.Delivery;
 using ScheduleOne.DevUtilities;
 using ScheduleOne.Persistence.Datas;
 using ScheduleOne.Persistence.Loaders;
+using ScheduleOne.UI.Shop;
 using ScheduleOne.Vehicles;
 using ScheduleOne.Vehicles.Modification;
 using Console = ScheduleOne.Console;
@@ -17,6 +19,7 @@ using Il2CppScheduleOne.Delivery;
 using Il2CppScheduleOne.DevUtilities;
 using Il2CppScheduleOne.Persistence.Datas;
 using Il2CppScheduleOne.Persistence.Loaders;
+using Il2CppScheduleOne.UI.Shop;
 using Il2CppScheduleOne.Vehicles;
 using Il2CppScheduleOne.Vehicles.Modification;
 using Il2CppScheduleOne.Graffiti;
@@ -158,20 +161,59 @@ internal static class LoaderPatch
         }
     }
     
+    private static DeliveryVehicle? FindVehicleByGuid(string guid)
+    {
+        lock (PoolManager.Lock)
+        {
+            var poolVehicle = PoolManager.Instance.Pool
+                .FirstOrDefault(dv => dv.GUID.ToString() == guid);
+            if (poolVehicle != null) return poolVehicle;
+        }
+
+        // Check shop base vehicles
+        foreach (var shop in ShopInterface.AllShops)
+        {
+            if (shop.DeliveryVehicle != null && shop.DeliveryVehicle.GUID.ToString() == guid)
+                return shop.DeliveryVehicle;
+        }
+
+        return null;
+    }
+
     private static void LoadDelivery(DeliveriesData data)
     {
-        if (data == null)
-        {
-            return;
-        }
+        if (data == null) return;
+
         if (data.ActiveDeliveries != null)
         {
-            DeliveryInstance[] activeDeliveries = data.ActiveDeliveries;
-            foreach (var delivery in activeDeliveries)
+            // Restore allocation map from save data
+            foreach (var entry in VehicleSave.Instance.AllocationMap.ToList())
+            {
+                var vehicle = FindVehicleByGuid(entry.VehicleGUID);
+                if (vehicle != null)
+                {
+                    PoolManager.Instance.AllocateDirectly(entry.DeliveryID, vehicle);
+                    Logger.Debug($"Restored allocation: {entry.DeliveryID} -> {entry.VehicleGUID}");
+                }
+                else
+                {
+                    Logger.Warning($"Could not find vehicle for allocation: {entry.VehicleGUID}");
+                }
+            }
+
+            // Restore base allocation map from save data
+            foreach (var entry in VehicleSave.Instance.BaseAllocationMap.ToList())
+            {
+                PoolManager.Instance.SetBaseAllocation(entry.ShopName, entry.IsAllocated);
+                Logger.Debug($"Restored base allocation: {entry.ShopName} = {entry.IsAllocated}");
+            }
+
+            foreach (var delivery in data.ActiveDeliveries)
             {
                 DeliveryManager.Instance.SendDelivery(delivery);
             }
         }
+
         if (data.DeliveryHistory != null)
         {
             foreach (var delivery in data.DeliveryHistory)

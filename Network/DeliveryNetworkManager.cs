@@ -9,12 +9,14 @@ using UnityEngine;
 #if MONO
 using Steamworks;
 using ScheduleOne.Delivery;
+using ScheduleOne.UI.Shop;
 using ScheduleOne.Vehicles;
 using ScheduleOne.Vehicles.Modification;
 
 #else
 using Il2CppSteamworks;
 using Il2CppScheduleOne.Delivery;
+using Il2CppScheduleOne.UI.Shop;
 using Il2CppScheduleOne.Vehicles;
 using Il2CppScheduleOne.Vehicles.Modification;
 using Guid = Il2CppSystem.Guid;
@@ -352,8 +354,15 @@ public class DeliveryNetworkManager
                 () => {
                     lock (PoolManager.Lock)
                     {
-                        return PoolManager.Instance.Pool.FirstOrDefault(v => v.GUID == message.VehicleGuid) != null;
+                        if (PoolManager.Instance.Pool.FirstOrDefault(v => v.GUID == message.VehicleGuid) != null)
+                            return true;
                     }
+                    foreach (var shop in ShopInterface.AllShops)
+                    {
+                        if (shop.DeliveryVehicle != null && shop.DeliveryVehicle.GUID == message.VehicleGuid)
+                            return true;
+                    }
+                    return false;
                 },
                 1f,
                 30f,
@@ -366,6 +375,18 @@ public class DeliveryNetworkManager
                 {
                     vehicle = PoolManager.Instance.Pool
                         .FirstOrDefault(v => v.GUID == message.VehicleGuid);
+                }
+
+                if (vehicle == null)
+                {
+                    foreach (var shop in ShopInterface.AllShops)
+                    {
+                        if (shop.DeliveryVehicle != null && shop.DeliveryVehicle.GUID == message.VehicleGuid)
+                        {
+                            vehicle = shop.DeliveryVehicle;
+                            break;
+                        }
+                    }
                 }
 
                 if (vehicle == null)

@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using MelonLoader;
 using MultiDelivery.Network;
+using MultiDelivery.Persistence;
 #if MONO
 using ScheduleOne.Delivery;
 using ScheduleOne.UI.Phone.Delivery;
@@ -58,16 +59,24 @@ internal static class ActiveDeliveryPatch
     {
         lock (PoolManager.Lock)
         {
+            // Already allocated (e.g. from save data restoration) - skip
+            if (PoolManager.Instance.Allocations.ContainsKey(delivery.DeliveryID))
+            {
+                Logger.Debug($"Already allocated, skipping");
+                return;
+            }
+
             PoolManager.Instance.BaseVehicleAllocationsForShop.TryAdd(delivery.StoreName, false);
             Logger.Debug($"Base allocation: {PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName]}");
 
             if (!PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName])
             {
                 Logger.Debug("Base vehicle allocating");
-                PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName] = true;
-
-                // Notify network of base allocation change
-                NetworkConvenienceMethods.NotifyBaseAllocation(delivery.StoreName, true);
+                var baseVehicle = DeliveryManager.Instance.GetShopInterface(delivery.StoreName).DeliveryVehicle;
+                PoolManager.Instance.SetBaseAllocation(delivery.StoreName, true);
+                PoolManager.Instance.Allocations.Add(delivery.DeliveryID, baseVehicle);
+                VehicleSave.Instance.AddAllocation(delivery.DeliveryID, baseVehicle);
+                NetworkConvenienceMethods.NotifyAllocation(delivery.DeliveryID, baseVehicle, isAllocated: true);
                 return;
             }
 

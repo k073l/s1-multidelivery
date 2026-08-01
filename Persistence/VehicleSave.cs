@@ -21,10 +21,29 @@ using Guid = Il2CppSystem.Guid;
 
 namespace MultiDelivery.Persistence;
 
+[Serializable]
+public class AllocationEntry
+{
+    public string DeliveryID;
+    public string VehicleGUID;
+}
+
+[Serializable]
+public class BaseAllocationEntry
+{
+    public string ShopName;
+    public bool IsAllocated;
+}
+
 public class VehicleSave : Saveable
 {
     [SaveableField("VehicleSaveData")] private List<VehicleSaveDto> _dtos = [];
+    [SaveableField("AllocationMap")] private List<AllocationEntry> _allocationMap = [];
+    [SaveableField("BaseAllocationMap")] private List<BaseAllocationEntry> _baseAllocationMap = [];
     public override SaveableLoadOrder LoadOrder => SaveableLoadOrder.BeforeBaseGame;
+
+    public IReadOnlyList<AllocationEntry> AllocationMap => _allocationMap;
+    public IReadOnlyList<BaseAllocationEntry> BaseAllocationMap => _baseAllocationMap;
 
     private static readonly Logger Logger = new(nameof(VehicleSave));
     private static Transform _parent;
@@ -45,6 +64,40 @@ public class VehicleSave : Saveable
         };
         if (_dtos.Contains(dto)) return;
         _dtos.Add(dto);
+    }
+
+    internal void AddAllocation(string deliveryId, DeliveryVehicle vehicle)
+    {
+        var guid = vehicle.GUID.ToString();
+        _allocationMap.RemoveAll(e => e.DeliveryID == deliveryId);
+        _allocationMap.Add(new AllocationEntry { DeliveryID = deliveryId, VehicleGUID = guid });
+    }
+
+    internal void RemoveAllocation(string deliveryId)
+    {
+        _allocationMap.RemoveAll(e => e.DeliveryID == deliveryId);
+    }
+
+    internal void RemoveAllocationsForVehicle(DeliveryVehicle vehicle)
+    {
+        var guid = vehicle.GUID.ToString();
+        _allocationMap.RemoveAll(e => e.VehicleGUID == guid);
+    }
+
+    internal void ClearAllocations()
+    {
+        _allocationMap.Clear();
+    }
+
+    internal void ClearBaseAllocations()
+    {
+        _baseAllocationMap.Clear();
+    }
+
+    internal void SyncBaseAllocation(string shopName, bool allocated)
+    {
+        _baseAllocationMap.RemoveAll(e => e.ShopName == shopName);
+        _baseAllocationMap.Add(new BaseAllocationEntry { ShopName = shopName, IsAllocated = allocated });
     }
 
     internal void RemoveVehicle(DeliveryVehicle vehicle)

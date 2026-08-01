@@ -81,8 +81,8 @@ internal static class CapacityText
             if (!baseAllocated)
                 available++;
 
-            // Custom vehicles
-            var customAllocated = Math.Min(pool.Allocations.Count, pool.Pool.Count);
+            // Custom vehicles - only count Pool vehicles in Allocations (excludes base vehicles)
+            var customAllocated = pool.Allocations.Values.Count(v => pool.Pool.Contains(v));
             var customAvailable = pool.Pool.Count - customAllocated;
 
             available += customAvailable;

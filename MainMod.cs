@@ -40,7 +40,7 @@ public static class BuildInfo
 public class MultiDelivery : MelonMod
 {
     private static readonly Logger Logger = new("");
-    private DeliveryNetworkManager? _networkManager;
+    private IDeliveryNetworkManager? _networkManager;
     private bool _networkManagerFailed;
 
     internal static MelonPreferences_Category Category =
@@ -54,7 +54,7 @@ public class MultiDelivery : MelonMod
     public override void OnInitializeMelon()
     {
         Logger.Msg("MultiDelivery initialized");
-        DependenciesChecker.PrintMissing();
+        CheckDependencies();
         MelonCoroutines.Start(InitializeNetworkManager());
     }
 
@@ -70,21 +70,14 @@ public class MultiDelivery : MelonMod
     {
         if (!SteamAPI.Init()) yield break;
         yield return null;
-
-        // Initialize network manager
-        _networkManager = new DeliveryNetworkManager();
-        if (_networkManager.Initialize())
+        
+        _networkManager = NetworkLoader.Create();
+        if (_networkManager == null)
         {
-            Logger.Msg("Network manager initialized");
-
-            // Wire up to the pool manager
-            NetworkConvenienceMethods.InitializeNetworking(_networkManager);
+            Logger.Warning("NetworkManager is null, multiplayer features will be unavailable.");
+            yield break;
         }
-        else
-        {
-            _networkManager = null;
-            Logger.Warning("Network manager initialization failed - running in offline mode");
-        }
+        NetworkConvenienceMethods.InitializeNetworking(_networkManager);
     }
 
     public override void OnUpdate()
@@ -107,5 +100,70 @@ public class MultiDelivery : MelonMod
     {
         _networkManager?.Dispose();
         Logger.Msg("MultiDelivery deinitialized");
+    }
+
+    private static void CheckDependencies()
+    {
+        var depChecker = new DependenciesChecker
+        {
+            ShowMenuBanner = true,
+            UnloadIfMissingRequired = true,
+        };
+        depChecker.AddDependency(new DependencyInfo
+        {
+            Name = "S1API (Forked)",
+            AssemblyName = "S1API",
+            IsRequired = true,
+            Version = "3.0.1",
+            Urls =
+            [
+                new DependencyUrl
+                {
+                    SourceName = "Thunderstore",
+                    Url = "https://thunderstore.io/c/schedule-i/p/ifBars/S1API_Forked/"
+                },
+                new DependencyUrl
+                {
+                    SourceName = "NexusMods",
+                    Url = "https://www.nexusmods.com/schedule1/mods/1194"
+                },
+                new DependencyUrl
+                {
+                    SourceName = "Github",
+                    Url = "https://github.com/ifBars/S1API/releases/"
+                }
+            ]
+        });
+        depChecker.AddDependency(new DependencyInfo
+        {
+            Name = "SteamNetworkLib",
+            AssemblyName = "SteamNetworkLib",
+            IsRequired = false,
+            Version = "1.2.1",
+            Urls =
+            [
+                new DependencyUrl
+                {
+                    SourceName = "Thunderstore Il2Cpp",
+                    Url = "https://thunderstore.io/c/schedule-i/p/ifBars/SteamNetworkLib_Il2Cpp/"
+                },
+                new DependencyUrl
+                {
+                    SourceName = "Thunderstore Mono",
+                    Url = "https://thunderstore.io/c/schedule-i/p/ifBars/SteamNetworkLib_Mono/"
+                },
+                new DependencyUrl
+                {
+                    SourceName = "NexusMods",
+                    Url = "https://www.nexusmods.com/schedule1/mods/1396"
+                },
+                new DependencyUrl
+                {
+                    SourceName = "Github",
+                    Url = "https://github.com/ifBars/SteamNetworkLib/releases"
+                }
+            ]
+        });
+        depChecker.ProcessAndAlert();
     }
 }

@@ -28,7 +28,7 @@ namespace MultiDelivery.Network;
 /// Manages network synchronization for the delivery vehicle pool system
 /// Uses ObjectId (FishNet network ID) for vehicle lookups across clients
 /// </summary>
-public class DeliveryNetworkManager
+public class DeliveryNetworkManager : IDeliveryNetworkManager
 {
     private SteamNetworkClient _client;
     private readonly Logger _logger;
@@ -36,11 +36,11 @@ public class DeliveryNetworkManager
     private const string ModDataKey = "MultiDelivery_Version";
     private const string ModVersion = "1.0.0";
 
-    private bool IsInLobby => _client?.IsInLobby ?? false;
-    private bool IsHost => _client?.IsHost ?? false;
-    private bool IsSingleplayer => !IsInLobby;
+    public bool IsInLobby => _client?.IsInLobby ?? false;
+    public bool IsHost => _client?.IsHost ?? false;
+    public bool IsSingleplayer => !IsInLobby;
 
-    internal bool HostOrSingleplayer => IsHost || IsSingleplayer;
+    public bool HostOrSingleplayer => IsHost || IsSingleplayer;
 
     public DeliveryNetworkManager()
     {

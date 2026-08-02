@@ -1,5 +1,7 @@
 # Changelog
 
+## 1.0.5
+- Fixed a bug where missing optional dependencies would cause issues
 ## 1.0.4
 - Fixed a bug where capacity text wouldn't update correctly
 - Fixed rare bugs related to deliveries being mixed up on game load

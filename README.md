@@ -48,7 +48,7 @@ Note: May not be compatible with other delivery-adjacent mods.
 ## Troubleshooting
 1. Make sure you have the correct version of the mod for your branch (IL2CPP for none/beta, Mono for alternate/alternate beta)
 2. Make sure you have the required dependencies 
-   - S1API Forked (min version 3.0.1, latest recommended)
+   - S1API Forked (min version 3.2.1, latest recommended)
    - optionally SteamNetworkLib for multiplayer
 3. Check the Known Issues section to see if your issue is a known one - if so, follow the recommended workaround if available
 4. Check the MelonLoader logs if the mod loaded correctly, if dependencies were found, and for any errors

@@ -34,7 +34,7 @@ public static class BuildInfo
     public const string Name = "MultiDelivery";
     public const string Description = "Add vehicles, order multiple deliveries from the same place!";
     public const string Author = "k073l";
-    public const string Version = "1.0.5";
+    public const string Version = "1.0.6";
 }
 
 public class MultiDelivery : MelonMod
@@ -125,7 +125,7 @@ public class MultiDelivery : MelonMod
             Name = "S1API (Forked)",
             AssemblyName = "S1API",
             IsRequired = true,
-            Version = "3.0.1",
+            Version = "3.2.1",
             Urls =
             [
                 new DependencyUrl

@@ -1,6 +1,9 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections;
+using System.Runtime.CompilerServices;
 using HarmonyLib;
+using MelonLoader;
 using MultiDelivery.Helpers;
+using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 #if MONO
@@ -16,14 +19,15 @@ namespace MultiDelivery.Pool;
 internal static class CapacityText
 {
     internal static readonly Logger Logger = new(nameof(CapacityText));
-    private static ConditionalWeakTable<DeliveryShop, Text> _capacityTexts = new();
+    private static Dictionary<string, Text> _capacityTexts = new();
 
     [HarmonyPatch(nameof(DeliveryShop.Initialize))]
     [HarmonyPostfix]
     private static void AddCapacityTextPostfix(DeliveryShop __instance)
     {
         Logger.Debug($"Adding capacity text for {__instance.name}");
-        if (_capacityTexts.TryGetValue(__instance, out _)) return;
+        if (_capacityTexts.TryGetValue(__instance.MatchingShopInterfaceName, out var text) && 
+            text != null) return;
         var template = __instance.DeliveryTimeLabel;
         var templateGo = template?.transform.parent.gameObject;
         Logger.Debug($"Adding capacity text: {template}, templatego: {templateGo}");
@@ -36,7 +40,9 @@ internal static class CapacityText
 
         var count = go.transform.Find("Time").GetComponent<Text>();
         count.text = "1/1";
-        _capacityTexts.Add(__instance, count);
+        _capacityTexts.Remove(__instance.MatchingShopInterfaceName);
+        _capacityTexts.Add(__instance.MatchingShopInterfaceName, count);
+        Logger.Debug($"Added {__instance.MatchingShopInterfaceName} capacity text");
 
         // disable lower spacer
         var spacers = templateGo.transform.parent.FindAllTransforms("Spacer");
@@ -54,12 +60,19 @@ internal static class CapacityText
             Logger.Debug($"Delivery app is not open, skipping capacity text update for {__instance.name}");
             return;
         }
-        if (!_capacityTexts.TryGetValue(__instance, out var text))
+
+        MelonCoroutines.Start(DelayedTextUpdate(__instance));
+    }
+
+    private static IEnumerator DelayedTextUpdate(DeliveryShop shop)
+    {
+        yield return new WaitForSeconds(0.5f);
+        if (!_capacityTexts.TryGetValue(shop.MatchingShopInterfaceName, out var text))
         {
-            Logger.Debug($"Capacity text for {__instance.name} not found!");
-            return;
+            Logger.Debug($"Capacity text for {shop.name} not found!");
+            yield break;
         }
-        var (available, total) = GetVehiclesForShop(__instance);
+        var (available, total) = GetVehiclesForShop(shop);
         text.text = $"{available}/{total}";
     }
 

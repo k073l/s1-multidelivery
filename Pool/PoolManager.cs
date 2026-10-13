@@ -104,6 +104,13 @@ public class PoolManager
                 Logger.Debug($"Already allocated, returning");
                 return;
             }
+
+            if (Allocations.Values.Contains(deliveryVehicle))
+            {
+                Logger.Warn($"Vehicle already allocated to another delivery, skipping direct allocation: {deliveryVehicle.GUID}");
+                return;
+            }
+
             Allocations.Add(deliveryId, deliveryVehicle);
             Logger.Debug($"Directly allocated vehicle for {deliveryId}, vehicle: {deliveryVehicle.GUID}");
 

@@ -8,12 +8,14 @@ using UnityEngine;
 #if MONO
 using ScheduleOne.Delivery;
 using ScheduleOne.PlayerScripts;
+using ScheduleOne.UI.Shop;
 using ScheduleOne.Vehicles;
 using ScheduleOne.Vehicles.Modification;
 using Guid = System.Guid;
 #else
 using Il2CppScheduleOne.Delivery;
 using Il2CppScheduleOne.PlayerScripts;
+using Il2CppScheduleOne.UI.Shop;
 using Il2CppScheduleOne.Vehicles;
 using Il2CppScheduleOne.Vehicles.Modification;
 using Guid = Il2CppSystem.Guid;
@@ -26,6 +28,8 @@ public class AllocationEntry
 {
     public string DeliveryID;
     public string VehicleGUID;
+    public string? ShopName;
+    public bool IsBase;
 }
 
 [Serializable]
@@ -68,9 +72,28 @@ public class VehicleSave : Saveable
 
     internal void AddAllocation(string deliveryId, DeliveryVehicle vehicle)
     {
-        var guid = vehicle.GUID.ToString();
+        var guid = GetDeliveryVehicleGuid(vehicle);
+        string? shopName = null;
+        var isBase = false;
+
+        foreach (var shop in ShopInterface.AllShops)
+        {
+            if (shop?.DeliveryVehicle == vehicle)
+            {
+                shopName = shop.ShopName;
+                isBase = true;
+                break;
+            }
+        }
+
         _allocationMap.RemoveAll(e => e.DeliveryID == deliveryId);
-        _allocationMap.Add(new AllocationEntry { DeliveryID = deliveryId, VehicleGUID = guid });
+        _allocationMap.Add(new AllocationEntry
+        {
+            DeliveryID = deliveryId, 
+            VehicleGUID = guid,
+            ShopName = shopName,
+            IsBase = isBase,
+        });
     }
 
     internal void RemoveAllocation(string deliveryId)
@@ -80,7 +103,7 @@ public class VehicleSave : Saveable
 
     internal void RemoveAllocationsForVehicle(DeliveryVehicle vehicle)
     {
-        var guid = vehicle.GUID.ToString();
+        var guid = GetDeliveryVehicleGuid(vehicle);
         _allocationMap.RemoveAll(e => e.VehicleGUID == guid);
     }
 
@@ -102,7 +125,8 @@ public class VehicleSave : Saveable
 
     internal void RemoveVehicle(DeliveryVehicle vehicle)
     {
-        _dtos.RemoveAll(dto => dto.Guid.ToString() == vehicle.GUID.ToString());
+        var guid = GetDeliveryVehicleGuid(vehicle);
+        _dtos.RemoveAll(dto => dto.Guid.ToString() == guid);
     }
 
     protected override void OnLoaded()
@@ -155,5 +179,24 @@ public class VehicleSave : Saveable
             yield return null;
         yield return null;
         vehicle.ApplyColor(color);
+    }
+
+    private static string GetDeliveryVehicleGuid(DeliveryVehicle vehicle)
+    {
+        Guid vehicleGuid;
+        if (vehicle.Vehicle != null)
+        {
+            vehicleGuid = vehicle.Vehicle.GUID;
+        }
+        else if (Guid.TryParse(vehicle.GUID, out var parsedGuid))
+        {
+            vehicleGuid = parsedGuid;
+        }
+        else
+        {
+            vehicleGuid = Guid.Empty;
+        }
+
+        return vehicleGuid.ToString();
     }
 }

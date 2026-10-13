@@ -161,19 +161,40 @@ internal static class LoaderPatch
         }
     }
     
-    private static DeliveryVehicle? FindVehicleByGuid(string guid)
+    private static DeliveryVehicle? FindVehicleByGuid(string guid, string? shopName = null)
     {
         lock (PoolManager.Lock)
         {
             var poolVehicle = PoolManager.Instance.Pool
-                .FirstOrDefault(dv => dv.GUID.ToString() == guid);
+                .FirstOrDefault(dv => dv.Vehicle != null && dv.Vehicle.GUID.ToString() == guid);
             if (poolVehicle != null) return poolVehicle;
+        }
+
+        if (!string.IsNullOrEmpty(shopName))
+        {
+            var hintedShop = DeliveryManager.Instance.GetShopInterface(shopName);
+            if (hintedShop?.DeliveryVehicle != null &&
+                (
+                    string.IsNullOrEmpty(guid) ||
+                    guid == Guid.Empty.ToString() ||
+                    (
+                        hintedShop.DeliveryVehicle.Vehicle != null &&
+                        hintedShop.DeliveryVehicle.Vehicle.GUID.ToString() == guid
+                    )
+                )
+            )
+            {
+                return hintedShop.DeliveryVehicle;
+            }
         }
 
         // Check shop base vehicles
         foreach (var shop in ShopInterface.AllShops)
         {
-            if (shop.DeliveryVehicle != null && shop.DeliveryVehicle.GUID.ToString() == guid)
+            if (shop.DeliveryVehicle != null &&
+                shop.DeliveryVehicle.Vehicle != null &&
+                shop.DeliveryVehicle.Vehicle.GUID.ToString() == guid
+                )
                 return shop.DeliveryVehicle;
         }
 
@@ -189,7 +210,31 @@ internal static class LoaderPatch
             // Restore allocation map from save data
             foreach (var entry in VehicleSave.Instance.AllocationMap.ToList())
             {
-                var vehicle = FindVehicleByGuid(entry.VehicleGUID);
+                DeliveryVehicle? vehicle = null;
+
+                if (!string.IsNullOrEmpty(entry.ShopName) && entry.IsBase)
+                {
+                    var hintedShop = DeliveryManager.Instance.GetShopInterface(entry.ShopName);
+                    vehicle = hintedShop?.DeliveryVehicle;
+                }
+                
+                if (vehicle == null &&
+                    (string.IsNullOrEmpty(entry.VehicleGUID) ||
+                     entry.VehicleGUID == Guid.Empty.ToString()))
+                {
+                    var delivery = data.ActiveDeliveries?.FirstOrDefault(d => d.DeliveryID == entry.DeliveryID);
+                    if (delivery != null)
+                    {
+                        var shop = DeliveryManager.Instance.GetShopInterface(delivery.StoreName);
+                        vehicle = shop?.DeliveryVehicle;
+                    }
+                }
+
+                if (vehicle == null)
+                {
+                    vehicle = FindVehicleByGuid(entry.VehicleGUID, entry.ShopName);
+                }
+
                 if (vehicle != null)
                 {
                     PoolManager.Instance.AllocateDirectly(entry.DeliveryID, vehicle);

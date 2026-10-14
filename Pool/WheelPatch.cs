@@ -5,6 +5,7 @@ using ScheduleOne.Delivery;
 using ScheduleOne.Vehicles;
 using ScheduleOne.Core.Weather;
 #else
+using Il2Cpp;
 using Guid = Il2CppSystem.Guid;
 using Il2CppScheduleOne.Delivery;
 using Il2CppScheduleOne.Vehicles;
@@ -33,10 +34,15 @@ internal static class DeliveryVehicleAwakePatch
     [HarmonyPrefix]
     private static bool ExitIfNull(DeliveryVehicle __instance)
     {
-        // skip guid setting if invalid
-        if (Guid.TryParse(__instance.GUID, out var _)) return true;
+        // skip guid setting if invalid or empty
+        if (Guid.TryParse(__instance.GUID, out var parsed) && 
+            parsed.ToString() != Guid.Empty.ToString()) return true;
         if (__instance.GetComponent<LandVehicle>() == null) return false;
-        __instance.Vehicle = __instance.GetComponent<LandVehicle>();
+        var landVehicle = __instance.GetComponent<LandVehicle>();
+        var guid = GUIDManager.GenerateUniqueGUID();
+        __instance.GUID = guid.ToString();
+        landVehicle.SetGUID(guid);
+        __instance.Vehicle = landVehicle;
         __instance.Deactivate();
         return false;
     }

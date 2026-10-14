@@ -210,6 +210,7 @@ internal static class LoaderPatch
             // Restore allocation map from save data
             foreach (var entry in VehicleSave.Instance.AllocationMap.ToList())
             {
+                Logger.Debug($"Resolving allocation {entry.DeliveryID}: GUID={entry.VehicleGUID}, Shop={entry.ShopName}, IsBase={entry.IsBase}");
                 DeliveryVehicle? vehicle = null;
 
                 if (!string.IsNullOrEmpty(entry.ShopName) && entry.IsBase)

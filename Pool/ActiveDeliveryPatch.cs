@@ -71,8 +71,8 @@ internal static class ActiveDeliveryPatch
 
             if (!PoolManager.Instance.BaseVehicleAllocationsForShop[delivery.StoreName])
             {
-                Logger.Debug("Base vehicle allocating");
                 var baseVehicle = DeliveryManager.Instance.GetShopInterface(delivery.StoreName).DeliveryVehicle;
+                Logger.Debug($"Base vehicle allocating shop={delivery.StoreName} target={baseVehicle.GUID}");
                 PoolManager.Instance.SetBaseAllocation(delivery.StoreName, true);
                 PoolManager.Instance.Allocations.Add(delivery.DeliveryID, baseVehicle);
                 VehicleSave.Instance.AddAllocation(delivery.DeliveryID, baseVehicle);
@@ -81,7 +81,7 @@ internal static class ActiveDeliveryPatch
             }
 
             PoolManager.Instance.GetOrAllocateFirstFree(delivery.DeliveryID);
-            Logger.Debug($"Allocated for {delivery.DeliveryID}");
+            Logger.Debug($"Custom allocated shop={delivery.StoreName} {delivery.DeliveryID}");
         }
     }
 }

@@ -62,10 +62,13 @@ public class PoolManager
         lock (Lock)
         {
             Logger.Debug($"GetOrAllocateFirstFree called for: {deliveryId}");
+            Logger.Debug($"Allocation map before lookup ({AllocationCount}) entries");
+            foreach (var kv in Allocations)
+                Logger.Debug($"  {kv.Key} -> {kv.Value.GUID} (ActiveDelivery={kv.Value.ActiveDelivery?.DeliveryID ?? "null"})");
 
             if (Allocations.TryGetValue(deliveryId, out var allocated))
             {
-                Logger.Debug($"Already allocated, returning existing");
+                Logger.Debug($"Already allocated, returning existing {deliveryId} -> {allocated.GUID}");
                 return allocated;
             }
 
@@ -76,7 +79,7 @@ public class PoolManager
                 foreach (var alloc in Allocations)
                 {
                     Logger.Debug(
-                        $"Allocation: {alloc.Key} -> Vehicle has ActiveDelivery: {alloc.Value.ActiveDelivery?.DeliveryID ?? "null"}");
+                        $"Allocation: {alloc.Key} -> {alloc.Value.GUID} has ActiveDelivery: {alloc.Value.ActiveDelivery?.DeliveryID ?? "null"}");
                 }
 
                 throw new ArgumentException("Tried to allocate a non-free vehicle");

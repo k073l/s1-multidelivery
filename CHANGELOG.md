@@ -1,5 +1,7 @@
 # Changelog
 
+## 1.0.8
+- Fixed delivery van GUIDs not staying in sync between internal components
 ## 1.0.7
 - Fixed a bug with multidelivery pool add command where vehicles would lack a valid GUID in some cases
 ## 1.0.6

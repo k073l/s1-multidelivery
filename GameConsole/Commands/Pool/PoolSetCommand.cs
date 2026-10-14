@@ -1,4 +1,5 @@
-﻿using MultiDelivery.GameConsole.Core;
+﻿using System.Text;
+using MultiDelivery.GameConsole.Core;
 using MultiDelivery.Persistence;
 using MultiDelivery.Pool;
 
@@ -26,10 +27,11 @@ public class PoolSetCommand : ICommandNode
         }
 
         var todo = amount - PoolManager.Instance.PoolCount;
+        var sb = new StringBuilder();
         if (todo > 0)
         {
             for (var i = 0; i < todo; i++)
-                PoolAddCommand.CreatePoolVehicle();
+                sb.AppendLine($"added: {PoolAddCommand.CreatePoolVehicle()}");
         }
         else
         {
@@ -45,9 +47,10 @@ public class PoolSetCommand : ICommandNode
 
                 PoolManager.Instance.RemoveFromPool(vehicle);
                 VehicleSave.Instance.RemoveVehicle(vehicle);
+                sb.AppendLine($"removed: {vehicle?.GUID ?? null}");
             }
         }
 
-        context.Reply($"Pool set to {amount}.");
+        context.Reply($"Pool set to {amount}. Log of operations: {sb}");
     }
 }

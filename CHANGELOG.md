@@ -1,5 +1,7 @@
 # Changelog
 
+## 1.0.7
+- Fixed a bug with multidelivery pool add command where vehicles would lack a valid GUID in some cases
 ## 1.0.6
 - Fixed a bug where allocations would sometimes be resolved by empty GUID
 - Fixed a bug where capacity text wouldn't update correctly

@@ -1,4 +1,5 @@
-﻿using MultiDelivery.Builders;
+﻿using System.Text;
+using MultiDelivery.Builders;
 using MultiDelivery.GameConsole.Core;
 using MultiDelivery.Helpers;
 using MultiDelivery.Pool;
@@ -8,6 +9,7 @@ using UnityEngine;
 using ScheduleOne.Delivery;
 using ScheduleOne.Vehicles;
 #else
+using Il2Cpp;
 using Il2CppScheduleOne.Delivery;
 using Il2CppScheduleOne.Vehicles;
 #endif
@@ -34,15 +36,23 @@ public class PoolAddCommand : ICommandNode
             context.Error("Invalid number.");
             return;
         }
-        for (var i = 0; i < amount; i++)
-            CreatePoolVehicle();
 
-        context.Reply($"Added {amount} to pool.");
+        var sb = new StringBuilder();
+        for (var i = 0; i < amount; i++)
+            sb.AppendLine(CreatePoolVehicle());
+
+        context.Reply($"Added {amount} to pool. GUIDs of created vehicles: {sb}");
     }
 
-    internal static void CreatePoolVehicle()
+    internal static string CreatePoolVehicle()
     {
         var newLandVehicle = VehicleManager.Instance.SpawnAndReturnVehicle(QuestSetupManager.RequestedVehicleCode, Vector3.zero, Quaternion.identity, false);
+        if (newLandVehicle.GUID.ToString() == Guid.Empty.ToString())
+        {
+            // sometimes we're early and guid is empty, so we make it ourselves
+            newLandVehicle.SetGUID(GUIDManager.GenerateUniqueGUID());
+        }
+
         var deliveryVehicle = newLandVehicle.GetComponent<DeliveryVehicle>();
         if (deliveryVehicle == null)
         {
@@ -71,5 +81,6 @@ public class PoolAddCommand : ICommandNode
 
         PoolManager.Instance.AddToSaveData(deliveryVehicle);
         PoolManager.Instance.AddToPool(deliveryVehicle);
+        return newLandVehicle.GUID.ToString();
     }
 }

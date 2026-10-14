@@ -1,6 +1,6 @@
 # MultiDelivery
-[![MLVScan IL2CPP](https://mlvscan.com/attestations/att_3fSITjtHQIYUTUinzm-wMtob/badge.svg)](https://mlvscan.com/attestations/att_3fSITjtHQIYUTUinzm-wMtob)
-[![MLVScan Mono](https://mlvscan.com/attestations/att_sJiePCcvyYpLD82Kj8w8_-O_/badge.svg)](https://mlvscan.com/attestations/att_sJiePCcvyYpLD82Kj8w8_-O_)
+[![MLVScan IL2CPP](https://mlvscan.com/attestations/att_bj4ewEBor2RnnWPDyEXkrBHg/badge.svg)](https://mlvscan.com/attestations/att_bj4ewEBor2RnnWPDyEXkrBHg)
+[![MLVScan Mono](https://mlvscan.com/attestations/att_119ZJqMswU5CNNJ9wjZhoab6/badge.svg)](https://mlvscan.com/attestations/att_119ZJqMswU5CNNJ9wjZhoab6)
 
 Expand your delivery capacity - order multiple deliveries from the same store simultaneously!
 
